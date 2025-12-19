@@ -43,7 +43,7 @@ h1 {
   display:flex;
   width:90%;
   margin:0 auto;
-  height:500px; /* fixed equal height */
+  height:500px;
   gap:10px;
 }
 
@@ -56,14 +56,12 @@ h1 {
   height:100%;
 }
 
-/* CodeMirror fills container */
 .CodeMirror {
   flex:1;
   height:100%;
   text-align:left;
 }
 
-/* Output panel */
 #output {
   flex:1;
   background-color:#111;
@@ -74,7 +72,6 @@ h1 {
   text-align:left;
 }
 
-/* Input box below output */
 #inputBox {
   margin-top:5px;
   width:100%;
@@ -109,15 +106,16 @@ body.light #toolbar button { background-color:#ddd; color:#000; border-color:#00
   <button id="downloadBtn">Download .py</button>
   <button id="shareBtn">Share this code</button>
   <button id="themeBtn">Light Mode</button>
+  <button id="fileBtn">Files</button>
+  <select id="fileList" style="margin-left:5px; font-size:16px;">
+    <option value="">Select file...</option>
+  </select>
 </div>
 
 <div id="ide-container">
-  <!-- Editor -->
   <div id="editor-container">
     <textarea id="editor"></textarea>
   </div>
-
-  <!-- Output + Input -->
   <div id="output-container">
     <h2>Output</h2>
     <pre id="output"></pre>
@@ -136,67 +134,45 @@ const editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
 
 const output = document.getElementById("output");
 const inputBox = document.getElementById("inputBox");
-let inputResolve=null;
+let inputResolve = null;
 
-function outf(text){output.textContent+=text;}
+function outf(text){output.textContent += text;}
+function builtinInput(promptText){output.textContent+=promptText+"\n"; inputBox.focus(); return new Promise(resolve=>inputResolve=resolve);}
+inputBox.addEventListener("keydown", e => { if(e.key==="Enter" && inputResolve){ const val=inputBox.value; output.textContent+=val+"\n"; inputBox.value=""; inputResolve(val); inputResolve=null; }});
+function builtinRead(x){ if(!Sk.builtinFiles||!Sk.builtinFiles["files"][x]) throw "File not found: '"+x+"'"; return Sk.builtinFiles["files"][x]; }
 
-function builtinInput(promptText){
-  output.textContent+=promptText+"\n";
-  inputBox.focus();
-  return new Promise(resolve=>inputResolve=resolve);
-}
-
-inputBox.addEventListener("keydown", e=>{
-  if(e.key==="Enter" && inputResolve){
-    const val=inputBox.value;
-    output.textContent+=val+"\n";
-    inputBox.value="";
-    inputResolve(val);
-    inputResolve=null;
-  }
-});
-
-function builtinRead(x){
-  if(!Sk.builtinFiles||!Sk.builtinFiles["files"][x]) throw "File not found: '"+x+"'";
-  return Sk.builtinFiles["files"][x];
-}
-
-function runCode(){
+function runCode(){ 
   output.textContent="";
   Sk.configure({output:outf, read:builtinRead, inputfun:builtinInput, inputfunTakesPrompt:true});
   Sk.misceval.asyncToPromise(()=>Sk.importMainWithBody("<stdin>", false, editor.getValue(), true))
   .catch(err=>output.textContent+=err.toString());
 }
-
-document.getElementById("runBtn").onclick=runCode;
+document.getElementById("runBtn").onclick = runCode;
 
 // Auto-save
-editor.on("change",()=>localStorage.setItem("willIDE_code",editor.getValue()));
+editor.on("change", ()=>localStorage.setItem("willIDE_code", editor.getValue()));
 
-// Load code & theme
-window.onload=()=>{
+// Load saved code and theme
+window.onload = ()=>{
   const saved=localStorage.getItem("willIDE_code");
   if(saved) editor.setValue(saved);
-
-  const theme=localStorage.getItem("wide_theme")||"dark";
+  const theme = localStorage.getItem("wide_theme") || "dark";
   setTheme(theme);
   editor.refresh();
 };
 
 // Download
-document.getElementById("downloadBtn").onclick=()=>{
-  const blob=new Blob([editor.getValue()],{type:"text/plain"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="code.py";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+document.getElementById("downloadBtn").onclick = ()=>{
+  const blob = new Blob([editor.getValue()], {type:"text/plain"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "code.py";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
 };
 
 // Share
-document.getElementById("shareBtn").onclick=()=>{
-  const url=`${location.origin}${location.pathname}?code=${encodeURIComponent(editor.getValue())}`;
+document.getElementById("shareBtn").onclick = ()=>{
+  const url = `${location.origin}${location.pathname}?code=${encodeURIComponent(editor.getValue())}`;
   navigator.clipboard.writeText(url);
   alert("Share URL copied!");
 };
@@ -204,35 +180,20 @@ document.getElementById("shareBtn").onclick=()=>{
 // Theme toggle
 const themeBtn=document.getElementById("themeBtn");
 function setTheme(mode){
-  if(mode==="light"){
-    document.body.classList.add("light");
-    editor.setOption("theme","default");
-    themeBtn.textContent="Dark Mode";
-  }else{
-    document.body.classList.remove("light");
-    editor.setOption("theme","dracula");
-    themeBtn.textContent="Light Mode";
-  }
-  localStorage.setItem("wide_theme",mode);
+  if(mode==="light"){ document.body.classList.add("light"); editor.setOption("theme","default"); themeBtn.textContent="Dark Mode"; }
+  else{ document.body.classList.remove("light"); editor.setOption("theme","dracula"); themeBtn.textContent="Light Mode"; }
+  localStorage.setItem("wide_theme", mode);
 }
-themeBtn.onclick=()=>setTheme(document.body.classList.contains("light")?"dark":"light");
-  // ----- 1️⃣ File management -----
-let files = {}; // in-memory storage for files
+themeBtn.onclick = ()=>setTheme(document.body.classList.contains("light")?"dark":"light");
 
-// Create File button dynamically if not in toolbar
-const fileBtn = document.createElement("button");
-fileBtn.textContent = "Files";
-document.getElementById("toolbar").appendChild(fileBtn);
+// ----- 1️⃣ File management -----
+let files = {}; // in-memory files
 
-// File list dropdown
-const fileList = document.createElement("select");
-fileList.style.marginLeft = "5px";
-fileList.style.fontSize = "16px";
-document.getElementById("toolbar").appendChild(fileList);
+const fileBtn = document.getElementById("fileBtn");
+const fileList = document.getElementById("fileList");
 
-// Update dropdown with current files
 function updateFileList() {
-  fileList.innerHTML = "";
+  fileList.innerHTML = '<option value="">Select file...</option>';
   for (const fname in files) {
     const option = document.createElement("option");
     option.value = fname;
@@ -241,7 +202,6 @@ function updateFileList() {
   }
 }
 
-// Save current editor content as a file
 fileBtn.onclick = () => {
   const fname = prompt("Enter file name:");
   if (!fname) return;
@@ -250,14 +210,12 @@ fileBtn.onclick = () => {
   alert(`Saved as ${fname}`);
 };
 
-// Load selected file into editor
 fileList.onchange = () => {
   const fname = fileList.value;
   if (fname && files[fname] !== undefined) {
     editor.setValue(files[fname]);
   }
 };
-
 </script>
 
 </body>
