@@ -15,7 +15,7 @@
     color: white;
     margin: 0;
     padding: 20px;
-    text-align: center;
+    text-align: center; /* buttons and title centered */
   }
 
   /* Big title at the top */
@@ -25,7 +25,7 @@
     letter-spacing: 2px;
   }
 
-  /* Buttons toolbar */
+  /* Toolbar buttons */
   #toolbar {
     margin-bottom: 10px;
   }
@@ -59,10 +59,13 @@
     border: 2px solid white; /* white border around boxes */
     padding: 5px;
     box-sizing: border-box;
+    align-items: stretch; /* ensures children fill width */
   }
 
+  /* Editor and output text aligned left */
   .CodeMirror, #output {
-    flex: 1; /* fill container height */
+    flex: 1;
+    text-align: left;
   }
 
   #output {
@@ -94,7 +97,6 @@
 </head>
 <body>
 
-<!-- Big title -->
 <h1>WIDE</h1>
 
 <!-- Toolbar buttons -->
@@ -202,6 +204,7 @@
 
 </body>
 </html>
+
 
 
 
