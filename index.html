@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>WIDE - Python IDE</title>
 
-<!-- CodeMirror CSS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
 
@@ -94,11 +93,9 @@ body.light #output { background-color:#fff; color:#000; }
 body.light #toolbar button { background-color:#ddd; color:#000; border-color:#000; }
 </style>
 
-<!-- Skulpt -->
 <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
 
-<!-- CodeMirror -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
 </head>
@@ -192,7 +189,9 @@ document.getElementById("downloadBtn").onclick=()=>{
   const a=document.createElement("a");
   a.href=URL.createObjectURL(blob);
   a.download="code.py";
+  document.body.appendChild(a);
   a.click();
+  document.body.removeChild(a);
 };
 
 // Share
@@ -221,6 +220,7 @@ themeBtn.onclick=()=>setTheme(document.body.classList.contains("light")?"dark":"
 
 </body>
 </html>
+
 
 
 
