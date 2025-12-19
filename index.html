@@ -3,25 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <title>WIDE - Python IDE</title>
+
+<!-- CodeMirror CSS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
+
 <style>
 body {
-  font-family: monospace;
   margin:0;
   padding:20px;
+  font-family: monospace;
   background-color:#1e1e1e;
   color:white;
   text-align:center;
 }
+
 h1 {
   font-size:48px;
   margin-bottom:20px;
   letter-spacing:2px;
 }
+
 #toolbar {
   margin-bottom:10px;
 }
+
 #toolbar button {
   padding:12px 24px;
   font-size:18px;
@@ -33,27 +39,25 @@ h1 {
   margin:5px;
 }
 
-/* IDE horizontal layout */
+/* IDE layout: editor left, output+input right */
 #ide-container {
   display:flex;
   width:90%;
   margin:0 auto;
+  height:500px; /* fixed equal height */
   gap:10px;
-  height:500px; /* fixed height for both panels */
 }
 
-/* Editor and output equal width */
 #editor-container, #output-container {
   flex:1;
   display:flex;
   flex-direction:column;
   border:2px solid white;
   box-sizing:border-box;
-  padding:5px;
   height:100%;
 }
 
-/* CodeMirror fills editor container */
+/* CodeMirror fills container */
 .CodeMirror {
   flex:1;
   height:100%;
@@ -71,7 +75,7 @@ h1 {
   text-align:left;
 }
 
-/* Input box under output */
+/* Input box below output */
 #inputBox {
   margin-top:5px;
   width:100%;
@@ -90,11 +94,15 @@ body.light #output { background-color:#fff; color:#000; }
 body.light #toolbar button { background-color:#ddd; color:#000; border-color:#000; }
 </style>
 
+<!-- Skulpt -->
 <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
+
+<!-- CodeMirror -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
 </head>
+
 <body>
 
 <h1>WIDE</h1>
@@ -107,9 +115,12 @@ body.light #toolbar button { background-color:#ddd; color:#000; border-color:#00
 </div>
 
 <div id="ide-container">
+  <!-- Editor -->
   <div id="editor-container">
     <textarea id="editor"></textarea>
   </div>
+
+  <!-- Output + Input -->
   <div id="output-container">
     <h2>Output</h2>
     <pre id="output"></pre>
@@ -155,25 +166,21 @@ function builtinRead(x){
 
 function runCode(){
   output.textContent="";
-  Sk.configure({
-    output:outf,
-    read:builtinRead,
-    inputfun:builtinInput,
-    inputfunTakesPrompt:true
-  });
-  Sk.misceval.asyncToPromise(()=>Sk.importMainWithBody("<stdin>",false,editor.getValue(),true))
+  Sk.configure({output:outf, read:builtinRead, inputfun:builtinInput, inputfunTakesPrompt:true});
+  Sk.misceval.asyncToPromise(()=>Sk.importMainWithBody("<stdin>", false, editor.getValue(), true))
   .catch(err=>output.textContent+=err.toString());
 }
 
 document.getElementById("runBtn").onclick=runCode;
 
-// Save code
+// Auto-save
 editor.on("change",()=>localStorage.setItem("willIDE_code",editor.getValue()));
 
 // Load code & theme
 window.onload=()=>{
   const saved=localStorage.getItem("willIDE_code");
   if(saved) editor.setValue(saved);
+
   const theme=localStorage.getItem("wide_theme")||"dark";
   setTheme(theme);
   editor.refresh();
@@ -214,6 +221,7 @@ themeBtn.onclick=()=>setTheme(document.body.classList.contains("light")?"dark":"
 
 </body>
 </html>
+
 
 
 
