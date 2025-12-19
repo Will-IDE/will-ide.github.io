@@ -2,92 +2,113 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>WIDE</title>
+<title>WIDE - Python IDE in Browser</title>
 
+<!-- CodeMirror CSS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
 
 <style>
-body {
-  font-family: monospace;
-  background: #1e1e1e;
-  color: white;
-  margin: 0;
-  padding: 20px;
-  text-align: center;
-}
+  body {
+    font-family: monospace;
+    background-color: #1e1e1e;
+    color: white;
+    margin: 0;
+    padding: 20px;
+    text-align: center;
+  }
 
-h1 {
-  font-size: 48px;
-  margin-bottom: 10px;
-}
+  h1 {
+    font-size: 48px;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+  }
 
-/* TOP BAR */
-#toolbar {
-  margin-bottom: 15px;
-}
+  /* Toolbar */
+  #toolbar {
+    margin-bottom: 10px;
+  }
 
-#toolbar button {
-  padding: 10px 18px;
-  font-size: 16px;
-  background: #6272a4;
-  color: white;
-  border: 1px solid white;
-  border-radius: 5px;
-  cursor: pointer;
-  margin: 4px;
-}
+  #toolbar button {
+    padding: 12px 24px;
+    font-size: 18px;
+    background-color: #6272a4;
+    color: white;
+    border: 1px solid #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 5px;
+  }
 
-/* BOXES */
-.box {
-  width: 80%;
-  margin: 12px auto;
-  border: 2px solid white;
-  padding: 10px;
-  text-align: left;
-}
+  /* IDE row */
+  #ide-container {
+    width: 90%;
+    margin: 0 auto;
+    display: flex;
+    gap: 10px;
+  }
 
-.CodeMirror {
-  height: 450px;
-}
+  #editor-container, #output-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border: 2px solid white;
+    padding: 5px;
+    box-sizing: border-box;
+  }
 
-/* INPUT (HIDDEN UNTIL NEEDED) */
-#inputBox {
-  display: none;
-  width: 100%;
-  padding: 12px;
-  font-size: 16px;
-  margin-top: 10px;
-  border: 2px solid #00ff00;
-  background: black;
-  color: #00ff00;
-}
+  .CodeMirror {
+    flex: 1;
+    height: 400px;
+    text-align: left;
+  }
 
-/* OUTPUT */
-#output {
-  min-height: 220px;
-  background: #111;
-  color: #00ff00;
-  padding: 10px;
-  white-space: pre-wrap;
-  overflow-y: auto;
-}
+  #output {
+    flex: 1;
+    background-color: #111;
+    color: #00ff00;
+    padding: 10px;
+    white-space: pre-wrap;
+    overflow-y: auto;
+    text-align: left;
+  }
 
-/* FILE LIST */
-#files li {
-  list-style: none;
-  padding: 6px;
-  border-bottom: 1px solid #555;
-  cursor: pointer;
-}
+  #inputBox {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    font-family: monospace;
+    margin-top: 5px;
+  }
 
-#files li:hover {
-  background: #333;
-}
+  /* Light mode */
+  body.light {
+    background-color: #f5f5f5;
+    color: #111;
+  }
+
+  body.light #editor-container,
+  body.light #output-container {
+    border-color: #111;
+  }
+
+  body.light #output {
+    background-color: #fff;
+    color: #000;
+  }
+
+  body.light #toolbar button {
+    background-color: #ddd;
+    color: #000;
+    border-color: #000;
+  }
 </style>
 
+<!-- Skulpt -->
 <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
+
+<!-- CodeMirror -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
 </head>
@@ -96,111 +117,132 @@ h1 {
 
 <h1>WIDE</h1>
 
-<!-- TOP BUTTONS -->
 <div id="toolbar">
-  <button id="runBtn">Run</button>
-  <button id="saveBtn">Save File</button>
+  <button id="runBtn">Run Python</button>
+  <button id="downloadBtn">Download .py</button>
+  <button id="shareBtn">Share this code</button>
+  <button id="themeBtn">Light Mode</button>
 </div>
 
-<!-- EDITOR -->
-<div class="box">
-  <textarea id="editor"></textarea>
-</div>
+<div id="ide-container">
+  <!-- Editor -->
+  <div id="editor-container">
+    <textarea id="editor"></textarea>
+  </div>
 
-<!-- INPUT (BETWEEN EDITOR & OUTPUT) -->
-<div class="box">
-  <strong>Program Input</strong>
-  <input id="inputBox" placeholder="Type input and press Enter">
-</div>
-
-<!-- OUTPUT -->
-<div class="box">
-  <strong>Output</strong>
-  <pre id="output"></pre>
-</div>
-
-<!-- FILES -->
-<div class="box">
-  <strong>Files</strong>
-  <ul id="files"></ul>
+  <!-- Output + Input -->
+  <div id="output-container">
+    <h2>Output</h2>
+    <pre id="output"></pre>
+    <input id="inputBox" placeholder="Type input and press Enter">
+  </div>
 </div>
 
 <script>
-const editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
-  mode: "python",
-  theme: "dracula",
-  lineNumbers: true
-});
-
-const output = document.getElementById("output");
-const inputBox = document.getElementById("inputBox");
-let inputResolve = null;
-
-/* PYTHON OUTPUT */
-function outf(text) {
-  output.textContent += text;
-}
-
-/* PYTHON INPUT */
-function builtinInput(prompt) {
-  output.textContent += prompt + "\n";
-  inputBox.style.display = "block";
-  inputBox.focus();
-  return new Promise(resolve => inputResolve = resolve);
-}
-
-inputBox.addEventListener("keydown", e => {
-  if (e.key === "Enter" && inputResolve) {
-    output.textContent += inputBox.value + "\n";
-    inputResolve(inputBox.value);
-    inputBox.value = "";
-    inputBox.style.display = "none";
-    inputResolve = null;
-  }
-});
-
-/* RUN */
-function runCode() {
-  output.textContent = "";
-  Sk.configure({
-    output: outf,
-    inputfun: builtinInput,
-    inputfunTakesPrompt: true
+  const editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
+    mode: "python",
+    theme: "dracula",
+    lineNumbers: true,
+    indentUnit: 4,
+    tabSize: 4
   });
-  Sk.misceval.asyncToPromise(() =>
-    Sk.importMainWithBody("<stdin>", false, editor.getValue(), true)
-  ).catch(err => output.textContent += err.toString());
-}
 
-document.getElementById("runBtn").onclick = runCode;
+  const output = document.getElementById("output");
+  const inputBox = document.getElementById("inputBox");
+  let inputResolve = null;
 
-/* FILE SYSTEM */
-function loadFiles() {
-  const files = JSON.parse(localStorage.getItem("wide_files") || "{}");
-  const list = document.getElementById("files");
-  list.innerHTML = "";
-  for (const name in files) {
-    const li = document.createElement("li");
-    li.textContent = name;
-    li.onclick = () => editor.setValue(files[name]);
-    list.appendChild(li);
+  function outf(text) {
+    output.textContent += text;
   }
-}
 
-document.getElementById("saveBtn").onclick = () => {
-  const name = prompt("Filename:");
-  if (!name) return;
-  const files = JSON.parse(localStorage.getItem("wide_files") || "{}");
-  files[name] = editor.getValue();
-  localStorage.setItem("wide_files", JSON.stringify(files));
-  loadFiles();
-};
+  function builtinInput(promptText) {
+    output.textContent += promptText + "\n";
+    inputBox.focus();
+    return new Promise(resolve => inputResolve = resolve);
+  }
 
-loadFiles();
+  inputBox.addEventListener("keydown", e => {
+    if (e.key === "Enter" && inputResolve) {
+      const val = inputBox.value;
+      output.textContent += val + "\n";
+      inputBox.value = "";
+      inputResolve(val);
+      inputResolve = null;
+    }
+  });
+
+  function builtinRead(x) {
+    if (!Sk.builtinFiles || !Sk.builtinFiles["files"][x])
+      throw "File not found: '" + x + "'";
+    return Sk.builtinFiles["files"][x];
+  }
+
+  function runCode() {
+    output.textContent = "";
+    Sk.configure({
+      output: outf,
+      read: builtinRead,
+      inputfun: builtinInput,
+      inputfunTakesPrompt: true
+    });
+
+    Sk.misceval.asyncToPromise(() =>
+      Sk.importMainWithBody("<stdin>", false, editor.getValue(), true)
+    ).catch(err => output.textContent += err.toString());
+  }
+
+  document.getElementById("runBtn").onclick = runCode;
+
+  editor.on("change", () =>
+    localStorage.setItem("willIDE_code", editor.getValue())
+  );
+
+  window.onload = () => {
+    const saved = localStorage.getItem("willIDE_code");
+    if (saved) editor.setValue(saved);
+
+    const theme = localStorage.getItem("wide_theme") || "dark";
+    setTheme(theme);
+    editor.refresh();
+  };
+
+  document.getElementById("downloadBtn").onclick = () => {
+    const blob = new Blob([editor.getValue()], { type: "text/plain" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "code.py";
+    a.click();
+  };
+
+  document.getElementById("shareBtn").onclick = () => {
+    const url = `${location.origin}${location.pathname}?code=${encodeURIComponent(editor.getValue())}`;
+    navigator.clipboard.writeText(url);
+    alert("Share URL copied!");
+  };
+
+  const themeBtn = document.getElementById("themeBtn");
+
+  function setTheme(mode) {
+    if (mode === "light") {
+      document.body.classList.add("light");
+      editor.setOption("theme", "default");
+      themeBtn.textContent = "Dark Mode";
+    } else {
+      document.body.classList.remove("light");
+      editor.setOption("theme", "dracula");
+      themeBtn.textContent = "Light Mode";
+    }
+    localStorage.setItem("wide_theme", mode);
+  }
+
+  themeBtn.onclick = () => {
+    setTheme(document.body.classList.contains("light") ? "dark" : "light");
+  };
 </script>
 
 </body>
 </html>
+
 
 
 
