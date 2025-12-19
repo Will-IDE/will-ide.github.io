@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>WIDE - Python IDE</title>
+<title>WIDE</title>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
@@ -10,24 +10,27 @@
 <style>
 body {
   font-family: monospace;
-  background-color: #1e1e1e;
+  background: #1e1e1e;
   color: white;
   margin: 0;
   padding: 20px;
   text-align: center;
 }
 
-/* TITLE */
 h1 {
   font-size: 48px;
   margin-bottom: 10px;
 }
 
-/* TOOLBAR */
+/* TOP BAR */
+#toolbar {
+  margin-bottom: 15px;
+}
+
 #toolbar button {
   padding: 10px 18px;
   font-size: 16px;
-  background-color: #6272a4;
+  background: #6272a4;
   color: white;
   border: 1px solid white;
   border-radius: 5px;
@@ -35,86 +38,56 @@ h1 {
   margin: 4px;
 }
 
-/* CONTAINERS */
+/* BOXES */
 .box {
   width: 80%;
-  margin: 10px auto;
+  margin: 12px auto;
   border: 2px solid white;
-  padding: 8px;
-  box-sizing: border-box;
+  padding: 10px;
   text-align: left;
 }
 
-/* EDITOR SIZE */
 .CodeMirror {
   height: 450px;
 }
 
+/* INPUT (HIDDEN UNTIL NEEDED) */
+#inputBox {
+  display: none;
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  margin-top: 10px;
+  border: 2px solid #00ff00;
+  background: black;
+  color: #00ff00;
+}
+
 /* OUTPUT */
 #output {
-  min-height: 250px;
-  background-color: #111;
+  min-height: 220px;
+  background: #111;
   color: #00ff00;
   padding: 10px;
   white-space: pre-wrap;
   overflow-y: auto;
 }
 
-/* INPUT BOX */
-#inputBox {
-  width: 100%;
-  padding: 10px;
-  margin-top: 8px;
-  font-size: 16px;
-  font-family: monospace;
-  border: 2px solid #00ff00;
-  background: black;
-  color: #00ff00;
-  display: none;
-}
-
 /* FILE LIST */
-#files {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
 #files li {
+  list-style: none;
   padding: 6px;
-  cursor: pointer;
   border-bottom: 1px solid #555;
+  cursor: pointer;
 }
 
 #files li:hover {
   background: #333;
 }
-
-/* LIGHT MODE */
-body.light {
-  background-color: #f5f5f5;
-  color: #111;
-}
-
-body.light .box {
-  border-color: #111;
-}
-
-body.light #output {
-  background: #fff;
-  color: #000;
-}
-
-body.light #toolbar button {
-  background: #ddd;
-  color: #000;
-  border-color: #000;
-}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
 </head>
@@ -123,26 +96,32 @@ body.light #toolbar button {
 
 <h1>WIDE</h1>
 
+<!-- TOP BUTTONS -->
 <div id="toolbar">
   <button id="runBtn">Run</button>
   <button id="saveBtn">Save File</button>
-  <button id="downloadBtn">Download</button>
-  <button id="shareBtn">Share</button>
-  <button id="themeBtn">Light Mode</button>
 </div>
 
+<!-- EDITOR -->
 <div class="box">
   <textarea id="editor"></textarea>
 </div>
 
+<!-- INPUT (BETWEEN EDITOR & OUTPUT) -->
 <div class="box">
-  <h3>Output</h3>
-  <pre id="output"></pre>
-  <input id="inputBox" placeholder="Program input here">
+  <strong>Program Input</strong>
+  <input id="inputBox" placeholder="Type input and press Enter">
 </div>
 
+<!-- OUTPUT -->
 <div class="box">
-  <h3>Files</h3>
+  <strong>Output</strong>
+  <pre id="output"></pre>
+</div>
+
+<!-- FILES -->
+<div class="box">
+  <strong>Files</strong>
   <ul id="files"></ul>
 </div>
 
@@ -180,6 +159,7 @@ inputBox.addEventListener("keydown", e => {
   }
 });
 
+/* RUN */
 function runCode() {
   output.textContent = "";
   Sk.configure({
@@ -208,7 +188,7 @@ function loadFiles() {
 }
 
 document.getElementById("saveBtn").onclick = () => {
-  const name = prompt("File name:");
+  const name = prompt("Filename:");
   if (!name) return;
   const files = JSON.parse(localStorage.getItem("wide_files") || "{}");
   files[name] = editor.getValue();
@@ -217,53 +197,11 @@ document.getElementById("saveBtn").onclick = () => {
 };
 
 loadFiles();
-
-/* DOWNLOAD */
-document.getElementById("downloadBtn").onclick = () => {
-  const blob = new Blob([editor.getValue()], { type: "text/plain" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "code.py";
-  a.click();
-};
-
-/* SHARE */
-document.getElementById("shareBtn").onclick = () => {
-  const url = location.origin + location.pathname + "?code=" + encodeURIComponent(editor.getValue());
-  navigator.clipboard.writeText(url);
-  alert("Link copied!");
-};
-
-/* LOAD SHARED CODE */
-const params = new URLSearchParams(location.search);
-if (params.get("code")) {
-  editor.setValue(decodeURIComponent(params.get("code")));
-}
-
-/* THEME */
-const themeBtn = document.getElementById("themeBtn");
-function setTheme(t) {
-  if (t === "light") {
-    document.body.classList.add("light");
-    editor.setOption("theme", "default");
-    themeBtn.textContent = "Dark Mode";
-  } else {
-    document.body.classList.remove("light");
-    editor.setOption("theme", "dracula");
-    themeBtn.textContent = "Light Mode";
-  }
-  localStorage.setItem("wide_theme", t);
-}
-
-themeBtn.onclick = () => {
-  setTheme(document.body.classList.contains("light") ? "dark" : "light");
-};
-
-setTheme(localStorage.getItem("wide_theme") || "dark");
 </script>
 
 </body>
 </html>
+
 
 
 
