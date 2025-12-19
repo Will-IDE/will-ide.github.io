@@ -24,7 +24,6 @@
     letter-spacing: 2px;
   }
 
-  /* Toolbar */
   #toolbar {
     margin-bottom: 10px;
   }
@@ -40,26 +39,28 @@
     margin: 5px;
   }
 
-  /* IDE row */
+  /* IDE container side by side */
   #ide-container {
+    display: flex;
     width: 90%;
     margin: 0 auto;
-    display: flex;
     gap: 10px;
   }
 
-  #editor-container, #output-container {
+  #editor-container,
+  #output-container {
     flex: 1;
     display: flex;
     flex-direction: column;
     border: 2px solid white;
     padding: 5px;
     box-sizing: border-box;
+    height: 500px; /* fixed equal height */
   }
 
   .CodeMirror {
     flex: 1;
-    height: 400px;
+    height: 100%;
     text-align: left;
   }
 
@@ -124,6 +125,7 @@
   <button id="themeBtn">Light Mode</button>
 </div>
 
+<!-- Side by side -->
 <div id="ide-container">
   <!-- Editor -->
   <div id="editor-container">
@@ -151,9 +153,7 @@
   const inputBox = document.getElementById("inputBox");
   let inputResolve = null;
 
-  function outf(text) {
-    output.textContent += text;
-  }
+  function outf(text) { output.textContent += text; }
 
   function builtinInput(promptText) {
     output.textContent += promptText + "\n";
@@ -185,7 +185,6 @@
       inputfun: builtinInput,
       inputfunTakesPrompt: true
     });
-
     Sk.misceval.asyncToPromise(() =>
       Sk.importMainWithBody("<stdin>", false, editor.getValue(), true)
     ).catch(err => output.textContent += err.toString());
@@ -242,6 +241,7 @@
 
 </body>
 </html>
+
 
 
 
