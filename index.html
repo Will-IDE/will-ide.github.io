@@ -84,6 +84,29 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
 
+/* 🌞 Light mode */
+body.light {
+  background-color: #f5f5f5;
+  color: #111;
+}
+
+body.light #editor-container,
+body.light #output-container {
+  border-color: #111;
+}
+
+body.light #output {
+  background-color: #fff;
+  color: #000;
+}
+
+body.light #toolbar button {
+  background-color: #ddd;
+  color: #000;
+  border-color: #000;
+}
+
+
 </head>
 <body>
 
@@ -94,6 +117,7 @@
   <button id="runBtn">Run Python</button>
   <button id="downloadBtn">Download .py</button>
   <button id="shareBtn">Share this code</button>
+  <button id="themeBtn">Light Mode</button>
 </div>
 
 <!-- Editor -->
