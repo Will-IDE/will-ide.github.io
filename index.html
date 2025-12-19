@@ -2,75 +2,268 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>WIDE - Python IDE in Browser</title>
+<title>WIDE - Python IDE</title>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
 
 <style>
-  body {
-    font-family: monospace;
-    background-color: #1e1e1e;
-    color: white;
-    margin: 0;
-    padding: 20px;
-    text-align: center;
-  }
+body {
+  font-family: monospace;
+  background-color: #1e1e1e;
+  color: white;
+  margin: 0;
+  padding: 20px;
+  text-align: center;
+}
 
-  h1 {
-    font-size: 48px;
-    margin-bottom: 10px;
-  }
+/* TITLE */
+h1 {
+  font-size: 48px;
+  margin-bottom: 10px;
+}
 
-  #toolbar button {
-    padding: 10px 18px;
-    font-size: 16px;
-    background-color: #6272a4;
-    color: white;
-    border: 1px solid #fff;
-    border-radius: 5px;
-    cursor: pointer;
-    margin: 4px;
-  }
+/* TOOLBAR */
+#toolbar button {
+  padding: 10px 18px;
+  font-size: 16px;
+  background-color: #6272a4;
+  color: white;
+  border: 1px solid white;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 4px;
+}
 
-  #editor-container,
-  #output-container,
-  #files-container {
-    width: 80%;
-    margin: 10px auto;
-    border: 2px solid white;
-    padding: 8px;
-    box-sizing: border-box;
-    text-align: left;
-  }
+/* CONTAINERS */
+.box {
+  width: 80%;
+  margin: 10px auto;
+  border: 2px solid white;
+  padding: 8px;
+  box-sizing: border-box;
+  text-align: left;
+}
 
-  .CodeMirror {
-    height: 300px;
-  }
+/* EDITOR SIZE */
+.CodeMirror {
+  height: 450px;
+}
 
-  #output {
-    min-height: 120px;
-    background: #111;
-    color: #00ff00;
-    padding: 10px;
-    white-space: pre-wrap;
-    overflow-y: auto;
-  }
+/* OUTPUT */
+#output {
+  min-height: 250px;
+  background-color: #111;
+  color: #00ff00;
+  padding: 10px;
+  white-space: pre-wrap;
+  overflow-y: auto;
+}
 
-  /* INPUT BOX — VERY VISIBLE */
-  #inputBox {
-    width: 100%;
-    padding: 10px;
-    font-size: 16px;
-    font-family: monospace;
-    margin-top: 8px;
-    border: 2px solid #00ff00;
-    background-color: #000;
-    color: #00ff00;
-    display: none;
-  }
+/* INPUT BOX */
+#inputBox {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  font-size: 16px;
+  font-family: monospace;
+  border: 2px solid #00ff00;
+  background: black;
+  color: #00ff00;
+  display: none;
+}
 
-  /* File list
+/* FILE LIST */
+#files {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#files li {
+  padding: 6px;
+  cursor: pointer;
+  border-bottom: 1px solid #555;
+}
+
+#files li:hover {
+  background: #333;
+}
+
+/* LIGHT MODE */
+body.light {
+  background-color: #f5f5f5;
+  color: #111;
+}
+
+body.light .box {
+  border-color: #111;
+}
+
+body.light #output {
+  background: #fff;
+  color: #000;
+}
+
+body.light #toolbar button {
+  background: #ddd;
+  color: #000;
+  border-color: #000;
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
+</head>
+
+<body>
+
+<h1>WIDE</h1>
+
+<div id="toolbar">
+  <button id="runBtn">Run</button>
+  <button id="saveBtn">Save File</button>
+  <button id="downloadBtn">Download</button>
+  <button id="shareBtn">Share</button>
+  <button id="themeBtn">Light Mode</button>
+</div>
+
+<div class="box">
+  <textarea id="editor"></textarea>
+</div>
+
+<div class="box">
+  <h3>Output</h3>
+  <pre id="output"></pre>
+  <input id="inputBox" placeholder="Program input here">
+</div>
+
+<div class="box">
+  <h3>Files</h3>
+  <ul id="files"></ul>
+</div>
+
+<script>
+const editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
+  mode: "python",
+  theme: "dracula",
+  lineNumbers: true
+});
+
+const output = document.getElementById("output");
+const inputBox = document.getElementById("inputBox");
+let inputResolve = null;
+
+/* PYTHON OUTPUT */
+function outf(text) {
+  output.textContent += text;
+}
+
+/* PYTHON INPUT */
+function builtinInput(prompt) {
+  output.textContent += prompt + "\n";
+  inputBox.style.display = "block";
+  inputBox.focus();
+  return new Promise(resolve => inputResolve = resolve);
+}
+
+inputBox.addEventListener("keydown", e => {
+  if (e.key === "Enter" && inputResolve) {
+    output.textContent += inputBox.value + "\n";
+    inputResolve(inputBox.value);
+    inputBox.value = "";
+    inputBox.style.display = "none";
+    inputResolve = null;
+  }
+});
+
+function runCode() {
+  output.textContent = "";
+  Sk.configure({
+    output: outf,
+    inputfun: builtinInput,
+    inputfunTakesPrompt: true
+  });
+  Sk.misceval.asyncToPromise(() =>
+    Sk.importMainWithBody("<stdin>", false, editor.getValue(), true)
+  ).catch(err => output.textContent += err.toString());
+}
+
+document.getElementById("runBtn").onclick = runCode;
+
+/* FILE SYSTEM */
+function loadFiles() {
+  const files = JSON.parse(localStorage.getItem("wide_files") || "{}");
+  const list = document.getElementById("files");
+  list.innerHTML = "";
+  for (const name in files) {
+    const li = document.createElement("li");
+    li.textContent = name;
+    li.onclick = () => editor.setValue(files[name]);
+    list.appendChild(li);
+  }
+}
+
+document.getElementById("saveBtn").onclick = () => {
+  const name = prompt("File name:");
+  if (!name) return;
+  const files = JSON.parse(localStorage.getItem("wide_files") || "{}");
+  files[name] = editor.getValue();
+  localStorage.setItem("wide_files", JSON.stringify(files));
+  loadFiles();
+};
+
+loadFiles();
+
+/* DOWNLOAD */
+document.getElementById("downloadBtn").onclick = () => {
+  const blob = new Blob([editor.getValue()], { type: "text/plain" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "code.py";
+  a.click();
+};
+
+/* SHARE */
+document.getElementById("shareBtn").onclick = () => {
+  const url = location.origin + location.pathname + "?code=" + encodeURIComponent(editor.getValue());
+  navigator.clipboard.writeText(url);
+  alert("Link copied!");
+};
+
+/* LOAD SHARED CODE */
+const params = new URLSearchParams(location.search);
+if (params.get("code")) {
+  editor.setValue(decodeURIComponent(params.get("code")));
+}
+
+/* THEME */
+const themeBtn = document.getElementById("themeBtn");
+function setTheme(t) {
+  if (t === "light") {
+    document.body.classList.add("light");
+    editor.setOption("theme", "default");
+    themeBtn.textContent = "Dark Mode";
+  } else {
+    document.body.classList.remove("light");
+    editor.setOption("theme", "dracula");
+    themeBtn.textContent = "Light Mode";
+  }
+  localStorage.setItem("wide_theme", t);
+}
+
+themeBtn.onclick = () => {
+  setTheme(document.body.classList.contains("light") ? "dark" : "light");
+};
+
+setTheme(localStorage.getItem("wide_theme") || "dark");
+</script>
+
+</body>
+</html>
 
 
 
