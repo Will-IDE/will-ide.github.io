@@ -1,218 +1,215 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>My Python IDE</title>
-  <meta name="description" content="Will's online Python IDE built with HTML, JavaScript, and CodeMirror. Run Python code directly in the browser.">
-  <meta name="keywords" content="Will IDE, Python IDE, online Python editor, Will Python IDE">
-  <meta name="author" content="Will">
+<meta charset="UTF-8">
+<title>Will IDE - Python in Browser</title>
 
-  <!-- Favicon -->
-  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+<!-- Favicon & social preview -->
+<link rel="icon" href="/favicon.ico" type="image/x-icon">
+<meta property="og:title" content="Will IDE - Run Python in Your Browser">
+<meta property="og:description" content="Run Python code directly in the browser with Will IDE. Save, download, and share your code instantly.">
+<meta property="og:image" content="https://yourdomain.com/preview.png">
+<meta property="og:url" content="https://yourdomain.com">
+<meta name="twitter:card" content="summary_large_image">
 
-  <!-- Open Graph / Social preview -->
-  <meta property="og:title" content="Will IDE - Run Python in Your Browser">
-  <meta property="og:description" content="Run Python code directly in the browser with Will IDE. Save, download, and share your code instantly.">
-  <meta property="og:image" content="https://yourdomain.com/preview.png">
-  <meta property="og:url" content="https://yourdomain.com">
-  <meta name="twitter:card" content="summary_large_image">
+<!-- CodeMirror CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
 
-  <!-- CodeMirror CSS -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
+<style>
+  body {
+    font-family: monospace;
+    background-color: #1e1e1e;
+    color: white;
+    margin: 0;
+    padding: 20px;
+  }
 
-  <style>
-    body {
-      font-family: monospace;
-      background-color: #1e1e1e;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      margin: 0;
-    }
+  h1 { text-align: center; }
 
-    .CodeMirror {
-      width: 80%;
-      height: 300px;
-      font-size: 16px;
-      margin-bottom: 10px;
-    }
+  /* Toolbar buttons */
+  #toolbar {
+    text-align: center;
+    margin-bottom: 10px;
+  }
 
-    #runBtn, #downloadBtn, #shareBtn {
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-      margin-bottom: 10px;
-      margin-right: 5px;
-    }
+  #toolbar button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-right: 5px;
+    margin-bottom: 5px;
+  }
 
-    #output {
-      width: 80%;
-      min-height: 150px;
-      background-color: #111;
-      color: #00ff00;
-      border: 1px solid #333;
-      padding: 10px;
-      white-space: pre-wrap;
-      overflow-y: auto;
-    }
+  /* Layout: resizable editor & output */
+  #ide-container {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 
-    #inputBox {
-      width: 80%;
-      padding: 6px;
-      font-size: 16px;
-      font-family: monospace;
-      margin-top: 5px;
-      display: none;
-    }
+  #editor-container, #output-container {
+    flex: 1 1 400px;
+    min-width: 300px;
+  }
 
-    .CodeMirror, .CodeMirror-scroll {
-      height: 300px !important;
-    }
-  </style>
+  .CodeMirror {
+    height: 300px;
+  }
 
-  <!-- Skulpt -->
-  <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
+  #output {
+    background-color: #111;
+    color: #00ff00;
+    border: 1px solid #333;
+    padding: 10px;
+    white-space: pre-wrap;
+    overflow-y: auto;
+    height: 300px;
+  }
 
-  <!-- CodeMirror JS -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
+  #inputBox {
+    width: 100%;
+    padding: 6px;
+    font-size: 16px;
+    font-family: monospace;
+    margin-top: 5px;
+    display: none;
+  }
+</style>
+
+<!-- Skulpt -->
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
+
+<!-- CodeMirror JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
+
 </head>
-
 <body>
-  <h1>My Python IDE</h1>
 
-  <!-- Editor -->
-  <textarea id="editor"></textarea>
+<h1>Will IDE</h1>
 
-  <!-- Buttons -->
+<!-- Buttons toolbar -->
+<div id="toolbar">
   <button id="runBtn">Run Python</button>
   <button id="downloadBtn">Download .py</button>
   <button id="shareBtn">Share this code</button>
+</div>
 
-  <h2>Output:</h2>
-  <pre id="output"></pre>
+<!-- IDE container -->
+<div id="ide-container">
+  <div id="editor-container">
+    <textarea id="editor"></textarea>
+  </div>
+  <div id="output-container">
+    <h2>Output:</h2>
+    <pre id="output"></pre>
+    <input id="inputBox" placeholder="Type input and press Enter">
+  </div>
+</div>
 
-  <input id="inputBox" placeholder="Type input and press Enter">
+<script>
+  // ----- Initialize CodeMirror -----
+  const editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
+    mode: "python",
+    theme: "dracula",
+    lineNumbers: true,
+    indentUnit: 4,
+    tabSize: 4
+  });
 
-  <script>
-    // ----- Initialize CodeMirror -----
-    const editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
-      mode: "python",
-      theme: "dracula",
-      lineNumbers: true,
-      indentUnit: 4,
-      tabSize: 4
-    });
+  const output = document.getElementById("output");
+  const inputBox = document.getElementById("inputBox");
+  let inputResolve = null;
 
-    const output = document.getElementById("output");
-    const inputBox = document.getElementById("inputBox");
-    let inputResolve = null;
+  // ----- Skulpt output -----
+  function outf(text) { output.textContent += text; }
 
-    // ----- Skulpt output function -----
-    function outf(text) {
-      output.textContent += text;
+  // ----- Skulpt input -----
+  function builtinInput(promptText) {
+    output.textContent += promptText + "\n\n";
+    inputBox.style.display = "block";
+    inputBox.focus();
+    return new Promise(resolve => inputResolve = resolve);
+  }
+
+  inputBox.addEventListener("keydown", function(e){
+    if(e.key === "Enter" && inputResolve){
+      const value = inputBox.value;
+      output.textContent += value + "\n";
+      inputBox.value = "";
+      inputBox.style.display = "none";
+      inputResolve(value);
+      inputResolve = null;
     }
+  });
 
-    // ----- Skulpt input function -----
-    function builtinInput(promptText) {
-      output.textContent += promptText + "\n\n";
-      inputBox.style.display = "block";
-      inputBox.focus();
+  function builtinRead(x){
+    if(!Sk.builtinFiles || !Sk.builtinFiles["files"][x]) throw "File not found: '" + x + "'";
+    return Sk.builtinFiles["files"][x];
+  }
 
-      return new Promise(resolve => {
-        inputResolve = resolve;
-      });
-    }
-
-    inputBox.addEventListener("keydown", function(e) {
-      if (e.key === "Enter" && inputResolve) {
-        const value = inputBox.value;
-        output.textContent += value + "\n";
-        inputBox.value = "";
-        inputBox.style.display = "none";
-        inputResolve(value);
-        inputResolve = null;
-      }
+  // ----- Run code -----
+  function runCode(){
+    output.textContent = "";
+    Sk.configure({
+      output: outf,
+      read: builtinRead,
+      inputfun: builtinInput,
+      inputfunTakesPrompt: true
     });
+    Sk.misceval.asyncToPromise(() => Sk.importMainWithBody("<stdin>", false, editor.getValue(), true))
+      .catch(err => output.textContent += err.toString());
+  }
 
-    // ----- Skulpt run code function -----
-    function runCode() {
-      output.textContent = "";
+  document.getElementById("runBtn").addEventListener("click", runCode);
 
-      Sk.configure({
-        output: outf,
-        read: builtinRead,
-        inputfun: builtinInput,
-        inputfunTakesPrompt: true
-      });
+  // ----- 1️⃣ Auto-save in browser -----
+  editor.on("change", () => localStorage.setItem("willIDE_code", editor.getValue()));
 
-      Sk.misceval.asyncToPromise(() =>
-        Sk.importMainWithBody("<stdin>", false, editor.getValue(), true)
-      ).catch(err => {
-        output.textContent += err.toString();
-      });
+  // ----- 2️⃣ Load code from URL or LocalStorage -----
+  window.onload = () => {
+    const params = new URLSearchParams(window.location.search);
+    const codeFromURL = params.get("code");
+    if(codeFromURL){
+      editor.setValue(decodeURIComponent(codeFromURL));
+    } else {
+      const savedCode = localStorage.getItem("willIDE_code");
+      if(savedCode) editor.setValue(savedCode);
     }
+    setTimeout(() => editor.refresh(), 0);
+  };
 
-    function builtinRead(x) {
-      if (!Sk.builtinFiles || !Sk.builtinFiles["files"][x])
-        throw "File not found: '" + x + "'";
-      return Sk.builtinFiles["files"][x];
-    }
+  // ----- 3️⃣ Download code -----
+  const downloadBtn = document.getElementById("downloadBtn");
+  downloadBtn.addEventListener("click", () => {
+    const code = editor.getValue();
+    const blob = new Blob([code], {type:"text/plain"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "code.py";
+    a.click();
+    URL.revokeObjectURL(url);
+  });
 
-    document.getElementById("runBtn").addEventListener("click", runCode);
+  // ----- 4️⃣ Share code -----
+  function updateShareURL(){
+    return `${window.location.origin}${window.location.pathname}?code=${encodeURIComponent(editor.getValue())}`;
+  }
 
-    // ----- 1️⃣ Auto-save code in browser -----
-    editor.on("change", () => {
-      localStorage.setItem("willIDE_code", editor.getValue());
-    });
+  const shareBtn = document.getElementById("shareBtn");
+  shareBtn.addEventListener("click", ()=>{
+    const url = updateShareURL();
+    navigator.clipboard.writeText(url);
+    alert("Share URL copied! Open this code in Will IDE.");
+  });
+</script>
 
-    // ----- 2️⃣ Load code from URL or LocalStorage -----
-    window.onload = () => {
-      const params = new URLSearchParams(window.location.search);
-      const codeFromURL = params.get("code");
-      if (codeFromURL) {
-        editor.setValue(decodeURIComponent(codeFromURL));
-      } else {
-        const savedCode = localStorage.getItem("willIDE_code");
-        if (savedCode) editor.setValue(savedCode);
-      }
-
-      // Refresh editor after setting value
-      setTimeout(() => editor.refresh(), 0);
-    };
-
-    // ----- 3️⃣ Download code as .py file -----
-    const downloadBtn = document.getElementById("downloadBtn");
-    downloadBtn.addEventListener("click", () => {
-      const code = editor.getValue();
-      const blob = new Blob([code], { type: "text/plain" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "code.py"; // default filename
-      a.click();
-      URL.revokeObjectURL(url);
-    });
-
-    // ----- 4️⃣ Share code via URL -----
-    function updateShareURL() {
-      const code = encodeURIComponent(editor.getValue());
-      return `${window.location.origin}${window.location.pathname}?code=${code}`;
-    }
-
-    const shareBtn = document.getElementById("shareBtn");
-    shareBtn.addEventListener("click", () => {
-      const url = updateShareURL();
-      navigator.clipboard.writeText(url);
-      alert("Share URL copied to clipboard! Open this code in Will IDE.");
-    });
-
-  </script>
 </body>
 </html>
+
 
 
