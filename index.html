@@ -3,11 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <title>My Python IDE</title>
-
   <meta name="description" content="Will's online Python IDE built with HTML, JavaScript, and CodeMirror. Run Python code directly in the browser.">
-<meta name="keywords" content="Will IDE, Python IDE, online Python editor, Will Python IDE">
-<meta name="author" content="Will">
+  <meta name="keywords" content="Will IDE, Python IDE, online Python editor, Will Python IDE">
+  <meta name="author" content="Will">
 
+  <!-- Favicon -->
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+
+  <!-- Open Graph / Social preview -->
+  <meta property="og:title" content="Will IDE - Run Python in Your Browser">
+  <meta property="og:description" content="Run Python code directly in the browser with Will IDE. Save, download, and share your code instantly.">
+  <meta property="og:image" content="https://yourdomain.com/preview.png">
+  <meta property="og:url" content="https://yourdomain.com">
+  <meta name="twitter:card" content="summary_large_image">
 
   <!-- CodeMirror CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
@@ -25,7 +33,6 @@
       margin: 0;
     }
 
-    /* 🔥 THIS FIXES THE COLLAPSED EDITOR */
     .CodeMirror {
       width: 80%;
       height: 300px;
@@ -33,11 +40,12 @@
       margin-bottom: 10px;
     }
 
-    #runBtn {
+    #runBtn, #downloadBtn, #shareBtn {
       padding: 10px 20px;
       font-size: 16px;
       cursor: pointer;
       margin-bottom: 10px;
+      margin-right: 5px;
     }
 
     #output {
@@ -57,13 +65,12 @@
       font-size: 16px;
       font-family: monospace;
       margin-top: 5px;
-      display: none:
+      display: none;
     }
-    .CodeMirror,
-.CodeMirror-scroll {
-  height: 300px !important;
-}
 
+    .CodeMirror, .CodeMirror-scroll {
+      height: 300px !important;
+    }
   </style>
 
   <!-- Skulpt -->
@@ -81,7 +88,10 @@
   <!-- Editor -->
   <textarea id="editor"></textarea>
 
+  <!-- Buttons -->
   <button id="runBtn">Run Python</button>
+  <button id="downloadBtn">Download .py</button>
+  <button id="shareBtn">Share this code</button>
 
   <h2>Output:</h2>
   <pre id="output"></pre>
@@ -89,7 +99,7 @@
   <input id="inputBox" placeholder="Type input and press Enter">
 
   <script>
-    // Init CodeMirror
+    // ----- Initialize CodeMirror -----
     const editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
       mode: "python",
       theme: "dracula",
@@ -102,10 +112,12 @@
     const inputBox = document.getElementById("inputBox");
     let inputResolve = null;
 
+    // ----- Skulpt output function -----
     function outf(text) {
       output.textContent += text;
     }
 
+    // ----- Skulpt input function -----
     function builtinInput(promptText) {
       output.textContent += promptText + "\n\n";
       inputBox.style.display = "block";
@@ -127,6 +139,7 @@
       }
     });
 
+    // ----- Skulpt run code function -----
     function runCode() {
       output.textContent = "";
 
@@ -151,24 +164,55 @@
     }
 
     document.getElementById("runBtn").addEventListener("click", runCode);
-  </script>
-  <script>
-  const editor = CodeMirror.fromTextArea(
-    document.getElementById("editor"),
-    {
-      mode: "python",
-      theme: "dracula",
-      lineNumbers: true,
-      indentUnit: 4,
-      tabSize: 4
+
+    // ----- 1️⃣ Auto-save code in browser -----
+    editor.on("change", () => {
+      localStorage.setItem("willIDE_code", editor.getValue());
+    });
+
+    // ----- 2️⃣ Load code from URL or LocalStorage -----
+    window.onload = () => {
+      const params = new URLSearchParams(window.location.search);
+      const codeFromURL = params.get("code");
+      if (codeFromURL) {
+        editor.setValue(decodeURIComponent(codeFromURL));
+      } else {
+        const savedCode = localStorage.getItem("willIDE_code");
+        if (savedCode) editor.setValue(savedCode);
+      }
+
+      // Refresh editor after setting value
+      setTimeout(() => editor.refresh(), 0);
+    };
+
+    // ----- 3️⃣ Download code as .py file -----
+    const downloadBtn = document.getElementById("downloadBtn");
+    downloadBtn.addEventListener("click", () => {
+      const code = editor.getValue();
+      const blob = new Blob([code], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "code.py"; // default filename
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // ----- 4️⃣ Share code via URL -----
+    function updateShareURL() {
+      const code = encodeURIComponent(editor.getValue());
+      return `${window.location.origin}${window.location.pathname}?code=${code}`;
     }
-  );
 
-  setTimeout(() => {
-    editor.refresh();
-  }, 0);
-</script>
+    const shareBtn = document.getElementById("shareBtn");
+    shareBtn.addEventListener("click", () => {
+      const url = updateShareURL();
+      navigator.clipboard.writeText(url);
+      alert("Share URL copied to clipboard! Open this code in Will IDE.");
+    });
 
+  </script>
 </body>
 </html>
+
 
