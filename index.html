@@ -24,7 +24,7 @@
     letter-spacing: 2px;
   }
 
-  /* Buttons toolbar */
+  /* Toolbar buttons */
   #toolbar {
     margin-bottom: 10px;
   }
@@ -32,7 +32,7 @@
   #toolbar button {
     padding: 12px 24px;
     font-size: 18px;
-    background-color: #6272a4; /* original purple/blue color */
+    background-color: #6272a4; /* original purple/blue */
     color: white;
     border: 1px solid #fff;
     border-radius: 5px;
@@ -49,6 +49,7 @@
     border: 2px solid white; /* white border around boxes */
     padding: 5px;
     box-sizing: border-box;
+    align-items: stretch;
   }
 
   .CodeMirror {
@@ -74,6 +75,28 @@
     margin-top: 5px;
     display: none;
   }
+
+  /* 🌞 Light mode styles */
+  body.light {
+    background-color: #f5f5f5;
+    color: #111;
+  }
+
+  body.light #editor-container,
+  body.light #output-container {
+    border-color: #111;
+  }
+
+  body.light #output {
+    background-color: #fff;
+    color: #000;
+  }
+
+  body.light #toolbar button {
+    background-color: #ddd;
+    color: #000;
+    border-color: #000;
+  }
 </style>
 
 <!-- Skulpt -->
@@ -83,29 +106,6 @@
 <!-- CodeMirror JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
-
-/* 🌞 Light mode */
-body.light {
-  background-color: #f5f5f5;
-  color: #111;
-}
-
-body.light #editor-container,
-body.light #output-container {
-  border-color: #111;
-}
-
-body.light #output {
-  background-color: #fff;
-  color: #000;
-}
-
-body.light #toolbar button {
-  background-color: #ddd;
-  color: #000;
-  border-color: #000;
-}
-
 
 </head>
 <body>
@@ -133,6 +133,7 @@ body.light #toolbar button {
 </div>
 
 <script>
+  // ----- Initialize CodeMirror -----
   const editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
     mode: "python",
     theme: "dracula",
@@ -145,10 +146,10 @@ body.light #toolbar button {
   const inputBox = document.getElementById("inputBox");
   let inputResolve = null;
 
-  // Skulpt output
+  // ----- Skulpt output -----
   function outf(text){ output.textContent += text; }
 
-  // Skulpt input
+  // ----- Skulpt input -----
   function builtinInput(promptText){
     output.textContent += promptText + "\n\n";
     inputBox.style.display = "block";
@@ -172,7 +173,7 @@ body.light #toolbar button {
     return Sk.builtinFiles["files"][x];
   }
 
-  // Run code
+  // ----- Run code -----
   function runCode(){
     output.textContent = "";
     Sk.configure({ output: outf, read: builtinRead, inputfun: builtinInput, inputfunTakesPrompt: true });
@@ -181,10 +182,10 @@ body.light #toolbar button {
   }
   document.getElementById("runBtn").addEventListener("click", runCode);
 
-  // Auto-save
+  // ----- Auto-save -----
   editor.on("change", () => localStorage.setItem("willIDE_code", editor.getValue()));
 
-  // Load code from URL or localStorage
+  // ----- Load code from URL or LocalStorage -----
   window.onload = () => {
     const params = new URLSearchParams(window.location.search);
     const codeFromURL = params.get("code");
@@ -194,9 +195,13 @@ body.light #toolbar button {
       if(saved) editor.setValue(saved);
     }
     setTimeout(() => editor.refresh(), 0);
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem("wide_theme") || "dark";
+    setTheme(savedTheme);
   };
 
-  // Download code
+  // ----- Download code -----
   document.getElementById("downloadBtn").addEventListener("click", () => {
     const code = editor.getValue();
     const blob = new Blob([code], {type:"text/plain"});
@@ -208,16 +213,38 @@ body.light #toolbar button {
     URL.revokeObjectURL(url);
   });
 
-  // Share code
+  // ----- Share code -----
   document.getElementById("shareBtn").addEventListener("click", () => {
     const url = `${window.location.origin}${window.location.pathname}?code=${encodeURIComponent(editor.getValue())}`;
     navigator.clipboard.writeText(url);
     alert("Share URL copied! Open this code in WIDE.");
   });
+
+  // ----- Theme toggle -----
+  const themeBtn = document.getElementById("themeBtn");
+
+  function setTheme(mode){
+    if(mode === "light"){
+      document.body.classList.add("light");
+      editor.setOption("theme","default");
+      themeBtn.textContent = "Dark Mode";
+    } else {
+      document.body.classList.remove("light");
+      editor.setOption("theme","dracula");
+      themeBtn.textContent = "Light Mode";
+    }
+    localStorage.setItem("wide_theme",mode);
+  }
+
+  themeBtn.addEventListener("click", ()=>{
+    const isLight = document.body.classList.contains("light");
+    setTheme(isLight ? "dark" : "light");
+  });
 </script>
 
 </body>
 </html>
+
 
 
 
