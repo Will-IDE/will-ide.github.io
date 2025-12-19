@@ -216,6 +216,48 @@ function setTheme(mode){
   localStorage.setItem("wide_theme",mode);
 }
 themeBtn.onclick=()=>setTheme(document.body.classList.contains("light")?"dark":"light");
+  // ----- 1️⃣ File management -----
+let files = {}; // in-memory storage for files
+
+// Create File button dynamically if not in toolbar
+const fileBtn = document.createElement("button");
+fileBtn.textContent = "Files";
+document.getElementById("toolbar").appendChild(fileBtn);
+
+// File list dropdown
+const fileList = document.createElement("select");
+fileList.style.marginLeft = "5px";
+fileList.style.fontSize = "16px";
+document.getElementById("toolbar").appendChild(fileList);
+
+// Update dropdown with current files
+function updateFileList() {
+  fileList.innerHTML = "";
+  for (const fname in files) {
+    const option = document.createElement("option");
+    option.value = fname;
+    option.textContent = fname;
+    fileList.appendChild(option);
+  }
+}
+
+// Save current editor content as a file
+fileBtn.onclick = () => {
+  const fname = prompt("Enter file name:");
+  if (!fname) return;
+  files[fname] = editor.getValue();
+  updateFileList();
+  alert(`Saved as ${fname}`);
+};
+
+// Load selected file into editor
+fileList.onchange = () => {
+  const fname = fileList.value;
+  if (fname && files[fname] !== undefined) {
+    editor.setValue(files[fname]);
+  }
+};
+
 </script>
 
 </body>
