@@ -38,7 +38,6 @@ h1 {
   margin:5px;
 }
 
-/* IDE layout */
 #ide-container {
   display:flex;
   width:90%;
@@ -53,7 +52,6 @@ h1 {
   flex-direction:column;
   border:2px solid white;
   box-sizing:border-box;
-  height:100%;
 }
 
 .CodeMirror {
@@ -115,6 +113,7 @@ body.light #toolbar select {
   padding:30px;
   border:2px solid white;
   border-radius:10px;
+  width:280px;
 }
 
 #authBox input {
@@ -122,19 +121,25 @@ body.light #toolbar select {
   margin:10px auto;
   padding:10px;
   font-size:16px;
-  width:220px;
+  width:240px;
 }
 
 #authBox button {
-  margin:5px;
+  margin:8px;
   padding:10px 15px;
   font-size:16px;
+}
+
+#loginLink {
+  cursor:pointer;
+  text-decoration:underline;
+  font-size:14px;
+  margin-top:5px;
 }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
 </head>
@@ -143,16 +148,22 @@ body.light #toolbar select {
 
 <h1>WIDE</h1>
 
-<!-- ===== LOGIN PANEL ===== -->
+<!-- ===== AUTH PANEL ===== -->
 <div id="authPanel">
   <div id="authBox">
-    <h2>Welcome to WIDE</h2>
+    <h2 id="authTitle">Welcome to WIDE</h2>
+
     <input id="username" placeholder="Username">
     <input id="password" type="password" placeholder="Password">
-    <br>
-    <button id="loginBtn">Log In</button>
-    <button id="signupBtn">Sign Up</button>
+
+    <button id="signupBtn" style="font-size:18px;">Sign Up</button>
+
+    <p id="loginLink">Already have an account? Log in</p>
+
+    <button id="loginBtn" style="display:none;">Log In</button>
+
     <button id="guestBtn">Use Without Account</button>
+
     <p id="authMsg"></p>
   </div>
 </div>
@@ -174,7 +185,6 @@ body.light #toolbar select {
   <div id="editor-container">
     <textarea id="editor"></textarea>
   </div>
-
   <div id="output-container">
     <h2>Output</h2>
     <pre id="output"></pre>
@@ -232,7 +242,6 @@ function runCode(){
     ()=>Sk.importMainWithBody("<stdin>", false, editor.getValue(), true)
   ).catch(err=>output.textContent += err.toString());
 }
-
 document.getElementById("runBtn").onclick = runCode;
 
 // ===== Theme =====
@@ -273,6 +282,7 @@ document.getElementById("shareBtn").onclick = ()=>{
 let currentUser = null;
 const authPanel = document.getElementById("authPanel");
 const authMsg = document.getElementById("authMsg");
+const authTitle = document.getElementById("authTitle");
 
 function loadUsers(){
   return JSON.parse(localStorage.getItem("wide_users") || "{}");
@@ -281,29 +291,51 @@ function saveUsers(users){
   localStorage.setItem("wide_users", JSON.stringify(users));
 }
 
-document.getElementById("loginBtn").onclick = ()=>{
-  const u = username.value.trim();
-  const p = password.value;
-  const users = loadUsers();
-  if(users[u] && users[u].password === p){
-    currentUser = u;
-    authPanel.style.display="none";
-    initUserFiles();
-  } else authMsg.textContent="Wrong login";
+// Toggle login button
+document.getElementById("loginLink").onclick = ()=>{
+  document.getElementById("loginBtn").style.display="inline-block";
 };
 
+// SIGN UP
 document.getElementById("signupBtn").onclick = ()=>{
+  authTitle.textContent = "Signing up...";
+
   const u = username.value.trim();
   const p = password.value;
   const users = loadUsers();
-  if(users[u]) authMsg.textContent="User exists";
-  else {
-    users[u] = {password:p, files:{}};
-    saveUsers(users);
-    authMsg.textContent="Account created. Log in!";
+
+  if(users[u]){
+    authMsg.textContent="User already exists";
+    authTitle.textContent="Welcome to WIDE";
+    return;
+  }
+
+  users[u] = {password:p, files:{}};
+  saveUsers(users);
+  authMsg.textContent="Account created! Now log in.";
+  authTitle.textContent="Welcome to WIDE";
+};
+
+// LOG IN
+document.getElementById("loginBtn").onclick = ()=>{
+  authTitle.textContent = "Logging in...";
+
+  const u = username.value.trim();
+  const p = password.value;
+  const users = loadUsers();
+
+  if(users[u] && users[u].password === p){
+    currentUser = u;
+    authTitle.textContent="Welcome to WIDE";
+    authPanel.style.display="none";
+    initUserFiles();
+  } else {
+    authMsg.textContent="Wrong username or password";
+    authTitle.textContent="Welcome to WIDE";
   }
 };
 
+// GUEST
 document.getElementById("guestBtn").onclick = ()=>{
   authPanel.style.display="none";
   fileBtn.style.display="none";
@@ -352,7 +384,7 @@ fileList.onchange = ()=>{
   if(fname && files[fname]) editor.setValue(files[fname]);
 };
 
-// ===== Load theme on start =====
+// ===== Load theme =====
 window.onload = ()=>{
   const theme = localStorage.getItem("wide_theme") || "dark";
   setTheme(theme);
@@ -362,6 +394,7 @@ window.onload = ()=>{
 
 </body>
 </html>
+
 
 
 
