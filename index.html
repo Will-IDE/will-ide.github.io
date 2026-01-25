@@ -88,6 +88,38 @@ body.light {
 body.light #editor-container, body.light #output-container { border-color:#111; }
 body.light #output { background-color:#fff; color:#000; }
 body.light #toolbar button { background-color:#ddd; color:#000; border-color:#000; }
+#authPanel {
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.85);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+
+#authBox {
+  background:#222;
+  padding:30px;
+  border:2px solid white;
+  border-radius:10px;
+}
+
+#authBox input {
+  display:block;
+  margin:10px auto;
+  padding:10px;
+  font-size:16px;
+  width:200px;
+}
+
+#authBox button {
+  margin:5px;
+  padding:10px 15px;
+  font-size:16px;
+}
+
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
@@ -100,6 +132,20 @@ body.light #toolbar button { background-color:#ddd; color:#000; border-color:#00
 <body>
 
 <h1>WIDE</h1>
+  <!-- Auth Panel -->
+<div id="authPanel">
+  <div id="authBox">
+    <h2>Welcome to WIDE</h2>
+    <input id="username" placeholder="Username">
+    <input id="password" type="password" placeholder="Password">
+    <br>
+    <button id="loginBtn">Log In</button>
+    <button id="signupBtn">Sign Up</button>
+    <button id="guestBtn">Use Without Account</button>
+    <p id="authMsg"></p>
+  </div>
+</div>
+
 
 <div id="toolbar">
   <button id="runBtn">Run Python</button>
@@ -154,11 +200,11 @@ editor.on("change", ()=>localStorage.setItem("willIDE_code", editor.getValue()))
 
 // Load saved code and theme
 window.onload = ()=>{
-  const saved=localStorage.getItem("willIDE_code");
-  if(saved) editor.setValue(saved);
   const theme = localStorage.getItem("wide_theme") || "dark";
   setTheme(theme);
   editor.refresh();
+};
+
 };
 
 // Download
@@ -186,15 +232,85 @@ function setTheme(mode){
 }
 themeBtn.onclick = ()=>setTheme(document.body.classList.contains("light")?"dark":"light");
 
-// ----- 1️⃣ File management -----
-let files = {}; // in-memory files
+// ================= AUTH SYSTEM =================
+let currentUser = null;
+const authPanel = document.getElementById("authPanel");
+const authMsg = document.getElementById("authMsg");
 
+function loadUsers(){
+  return JSON.parse(localStorage.getItem("wide_users") || "{}");
+}
+function saveUsers(users){
+  localStorage.setItem("wide_users", JSON.stringify(users));
+}
+
+// LOGIN
+document.getElementById("loginBtn").onclick = ()=>{
+  const u = username.value.trim();
+  const p = password.value;
+  const users = loadUsers();
+  if(users[u] && users[u].password === p){
+    currentUser = u;
+    authPanel.style.display="none";
+    initUserFiles();
+  } else {
+    authMsg.textContent="Wrong username or password";
+  }
+};
+
+// SIGNUP
+document.getElementById("signupBtn").onclick = ()=>{
+  const u = username.value.trim();
+  const p = password.value;
+  if(!u || !p) return;
+  const users = loadUsers();
+  if(users[u]){
+    authMsg.textContent="User already exists";
+    return;
+  }
+  users[u] = { password:p, files:{} };
+  saveUsers(users);
+  authMsg.textContent="Account created! Now log in.";
+};
+
+// GUEST
+document.getElementById("guestBtn").onclick = ()=>{
+  currentUser = null;
+  authPanel.style.display="none";
+  fileBtn.style.display="none";
+  fileList.style.display="none";
+};
+
+// ================= FILE SYSTEM =================
+let files = {};
 const fileBtn = document.getElementById("fileBtn");
 const fileList = document.getElementById("fileList");
 
-function updateFileList() {
+function initUserFiles(){
+  fileBtn.style.display="inline-block";
+  fileList.style.display="inline-block";
+  loadUserFiles();
+  updateFileList();
+}
+
+function loadUserFiles(){
+  const users = loadUsers();
+  if(currentUser && users[currentUser]){
+    files = users[currentUser].files || {};
+  }
+}
+
+function saveUserFiles(){
+  const users = loadUsers();
+  if(currentUser && users[currentUser]){
+    users[currentUser].files = files;
+    saveUsers(users);
+  }
+}
+
+function updateFileList(){
   fileList.innerHTML = '<option value="">Select file...</option>';
-  for (const fname in files) {
+  for(const fname in files){
     const option = document.createElement("option");
     option.value = fname;
     option.textContent = fname;
@@ -202,21 +318,26 @@ function updateFileList() {
   }
 }
 
-fileBtn.onclick = () => {
+fileBtn.onclick = ()=>{
   const fname = prompt("Enter file name:");
-  if (!fname) return;
+  if(!fname) return;
   files[fname] = editor.getValue();
+  saveUserFiles();
   updateFileList();
-  alert(`Saved as ${fname}`);
+  alert("Saved!");
 };
 
-fileList.onchange = () => {
+fileList.onchange = ()=>{
   const fname = fileList.value;
-  if (fname && files[fname] !== undefined) {
+  if(fname && files[fname]){
     editor.setValue(files[fname]);
   }
 };
+
+  }
+};
 </script>
+  
 
 </body>
 </html>
