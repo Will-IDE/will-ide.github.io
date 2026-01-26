@@ -17,19 +17,30 @@ body {
   text-align:center;
 }
 
+body.light {
+  background-color:#f5f5f5;
+  color:#111;
+}
+
+h1 {
+  font-size:48px;
+  margin-bottom:10px;
+}
+
 /* ===== AUTH PANEL ===== */
 #authPanel {
   position:fixed;
-  top:0; left:0; right:0; bottom:0;
+  inset:0;
   background:#1e1e1e;
   display:flex;
   justify-content:center;
   align-items:center;
   z-index:10;
 }
+body.light #authPanel { background:#f5f5f5; }
 
 #authBox {
-  border:2px solid white;
+  border:2px solid currentColor;
   padding:30px;
   width:320px;
 }
@@ -48,19 +59,10 @@ body {
   cursor:pointer;
 }
 
-#authMsg {
-  color:#ff5555;
-  min-height:18px;
-}
+#authMsg { color:#ff5555; min-height:18px; }
 
-/* ===== IDE ===== */
-
-h1 {
-  font-size:48px;
-  margin-bottom:10px;
-}
-
-#toolbar button {
+/* ===== TOOLBAR ===== */
+#toolbar button, #toolbar select {
   padding:10px 18px;
   margin:4px;
   font-size:16px;
@@ -69,7 +71,13 @@ h1 {
   border:1px solid white;
   cursor:pointer;
 }
+body.light #toolbar button {
+  background:#ddd;
+  color:black;
+  border-color:black;
+}
 
+/* ===== IDE ===== */
 #ide-container {
   display:flex;
   width:90%;
@@ -80,7 +88,7 @@ h1 {
 
 #editor-container, #output-container {
   flex:1;
-  border:2px solid white;
+  border:2px solid currentColor;
   display:flex;
   flex-direction:column;
 }
@@ -98,6 +106,10 @@ h1 {
   padding:10px;
   overflow-y:auto;
   text-align:left;
+}
+body.light #output {
+  background:#fff;
+  color:#000;
 }
 
 #inputBox {
@@ -119,14 +131,12 @@ h1 {
   <div id="authBox">
     <h2 id="authTitle">Welcome to WIDE</h2>
 
-    <!-- Start Buttons -->
     <div id="startButtons">
       <button id="btnSignup">Sign Up</button>
       <button id="btnLogin">Log In</button>
       <button id="btnGuest">Use Without Account</button>
     </div>
 
-    <!-- Form -->
     <div id="authForm" style="display:none;">
       <input id="username" placeholder="Username">
       <input id="password" type="password" placeholder="Password">
@@ -147,6 +157,7 @@ h1 {
   <select id="fileList">
     <option value="">Select file...</option>
   </select>
+  <button id="themeBtn">Light Mode</button>
 </div>
 
 <div id="ide-container">
@@ -160,8 +171,28 @@ h1 {
 </div>
 
 <script>
-/* ========= AUTH SYSTEM ========= */
+/* ========= THEME TOGGLE ========= */
+const themeBtn = document.getElementById("themeBtn");
 
+function setTheme(mode){
+  if(mode==="light"){
+    document.body.classList.add("light");
+    editor.setOption("theme","default");
+    themeBtn.textContent="Dark Mode";
+  } else {
+    document.body.classList.remove("light");
+    editor.setOption("theme","dracula");
+    themeBtn.textContent="Light Mode";
+  }
+  localStorage.setItem("wide_theme", mode);
+}
+
+themeBtn.onclick = ()=>{
+  const isLight = document.body.classList.contains("light");
+  setTheme(isLight ? "dark" : "light");
+};
+
+/* ========= AUTH SYSTEM ========= */
 const authPanel = document.getElementById("authPanel");
 const startButtons = document.getElementById("startButtons");
 const authForm = document.getElementById("authForm");
@@ -180,9 +211,8 @@ function saveUsers(users){
   localStorage.setItem("wide_users", JSON.stringify(users));
 }
 
-// Open signup
 btnSignup.onclick = ()=>{
-  authMode = "signup";
+  authMode="signup";
   startButtons.style.display="none";
   authForm.style.display="block";
   authTitle.textContent="Create Account";
@@ -190,9 +220,8 @@ btnSignup.onclick = ()=>{
   authMsg.textContent="";
 };
 
-// Open login
 btnLogin.onclick = ()=>{
-  authMode = "login";
+  authMode="login";
   startButtons.style.display="none";
   authForm.style.display="block";
   authTitle.textContent="Log In";
@@ -200,21 +229,18 @@ btnLogin.onclick = ()=>{
   authMsg.textContent="";
 };
 
-// Back
 backBtn.onclick = ()=>{
   authForm.style.display="none";
   startButtons.style.display="block";
   authTitle.textContent="Welcome to WIDE";
 };
 
-// Guest
 btnGuest.onclick = ()=>{
   authPanel.style.display="none";
   fileBtn.style.display="none";
   fileList.style.display="none";
 };
 
-// Submit auth
 submitAuth.onclick = ()=>{
   const u = username.value.trim();
   const p = password.value.trim();
@@ -227,7 +253,6 @@ submitAuth.onclick = ()=>{
 
   const users = loadUsers();
 
-  // SIGN UP
   if(authMode==="signup"){
     if(users[u]){
       authMsg.textContent="Username already exists";
@@ -236,17 +261,14 @@ submitAuth.onclick = ()=>{
     users[u] = {password:p, files:{}};
     saveUsers(users);
 
-    // After signup → send to login screen
     authMode="login";
     authTitle.textContent="Account created! Now Log In";
     submitAuth.textContent="Log In";
-    authMsg.textContent="";
     username.value="";
     password.value="";
     return;
   }
 
-  // LOG IN
   if(authMode==="login"){
     if(users[u] && users[u].password === p){
       currentUser = u;
@@ -259,7 +281,6 @@ submitAuth.onclick = ()=>{
 };
 
 /* ========= FILE SYSTEM ========= */
-
 const fileBtn = document.getElementById("fileBtn");
 const fileList = document.getElementById("fileList");
 
@@ -295,7 +316,6 @@ fileList.onchange = ()=>{
 };
 
 /* ========= PYTHON IDE ========= */
-
 const editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
   mode:"python",
   theme:"dracula",
@@ -342,11 +362,16 @@ downloadBtn.onclick = ()=>{
   a.download="code.py";
   a.click();
 };
+
+/* ===== Load saved theme on startup ===== */
+window.onload = ()=>{
+  const savedTheme = localStorage.getItem("wide_theme") || "dark";
+  setTheme(savedTheme);
+};
 </script>
 
 </body>
 </html>
-
 
 
 
