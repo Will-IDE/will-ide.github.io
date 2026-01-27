@@ -2,119 +2,175 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>WIDE - Python IDE</title>
+<title>WIDE - Browser Python IDE</title>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
 
 <style>
-body {
+:root{
+  --bg:#1e1e1e;
+  --fg:#ffffff;
+  --panel:#252526;
+  --accent:#00bcd4;
+  --border:#333;
+  --output:#111;
+}
+
+body.light{
+  --bg:#f5f5f5;
+  --fg:#111;
+  --panel:#ffffff;
+  --accent:#007acc;
+  --border:#ccc;
+  --output:#ffffff;
+}
+
+body{
   margin:0;
-  padding:20px;
-  font-family: monospace;
-  background-color:#1e1e1e;
-  color:white;
+  font-family:monospace;
+  background:var(--bg);
+  color:var(--fg);
   text-align:center;
 }
 
-body.light {
-  background-color:#f5f5f5;
-  color:#111;
+/* ===== Header ===== */
+#topbar{
+  background:var(--panel);
+  padding:12px;
+  font-size:26px;
+  letter-spacing:3px;
+  border-bottom:2px solid var(--accent);
+  box-shadow:0 2px 8px rgba(0,0,0,0.4);
 }
 
-h1 {
-  font-size:48px;
-  margin-bottom:10px;
+/* ===== Toolbar ===== */
+#toolbar{
+  background:var(--panel);
+  padding:10px;
+  margin:15px auto;
+  border-radius:8px;
+  display:inline-block;
+  box-shadow:0 4px 10px rgba(0,0,0,0.4);
 }
 
-/* ===== AUTH PANEL ===== */
-#authPanel {
+#toolbar button, #toolbar select{
+  background:transparent;
+  color:var(--fg);
+  border:1px solid var(--border);
+  padding:8px 14px;
+  margin:4px;
+  font-size:15px;
+  border-radius:6px;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+#toolbar button:hover{
+  border-color:var(--accent);
+  color:var(--accent);
+}
+
+/* ===== IDE ===== */
+#ide-container{
+  width:92%;
+  margin:auto;
+  height:520px;
+  display:flex;
+  gap:12px;
+}
+
+#editor-container,#output-container{
+  flex:1;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:8px;
+  display:flex;
+  flex-direction:column;
+  box-shadow:0 4px 12px rgba(0,0,0,0.4);
+  overflow:hidden;
+}
+
+.CodeMirror{
+  flex:1;
+  height:100%;
+  text-align:left;
+}
+
+#output{
+  flex:1;
+  background:var(--output);
+  padding:10px;
+  overflow-y:auto;
+  text-align:left;
+  color:#00ff88;
+}
+
+body.light #output{ color:#000; }
+
+#inputBox{
+  border:none;
+  border-top:1px solid var(--border);
+  padding:10px;
+  font-family:monospace;
+  outline:none;
+  background:var(--panel);
+  color:var(--fg);
+}
+
+/* ===== Welcome Animation ===== */
+#welcomeFlash{
   position:fixed;
   inset:0;
-  background:#1e1e1e;
+  background:var(--bg);
   display:flex;
   justify-content:center;
   align-items:center;
-  z-index:10;
+  font-size:32px;
+  letter-spacing:3px;
+  z-index:20;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 1s;
 }
-body.light #authPanel { background:#f5f5f5; }
 
-#authBox {
-  border:2px solid currentColor;
+/* ===== Auth Panel ===== */
+#authPanel{
+  position:fixed;
+  inset:0;
+  background:var(--bg);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:30;
+}
+
+#authBox{
+  background:var(--panel);
   padding:30px;
+  border:2px solid var(--border);
+  border-radius:10px;
   width:320px;
 }
 
-#authBox input {
+#authBox input{
   width:90%;
   padding:10px;
   margin:8px 0;
   font-family:monospace;
 }
 
-#authBox button {
-  padding:10px 18px;
-  margin:6px;
-  font-size:16px;
+#authBox button{
+  padding:10px 16px;
+  margin:5px;
   cursor:pointer;
 }
 
-#authMsg { color:#ff5555; min-height:18px; }
+#authMsg{ color:#ff5555; min-height:18px; }
 
-/* ===== TOOLBAR ===== */
-#toolbar button, #toolbar select {
-  padding:10px 18px;
-  margin:4px;
-  font-size:16px;
-  background:#6272a4;
-  color:white;
-  border:1px solid white;
-  cursor:pointer;
-}
-body.light #toolbar button {
-  background:#ddd;
-  color:black;
-  border-color:black;
-}
-
-/* ===== IDE ===== */
-#ide-container {
-  display:flex;
-  width:90%;
-  margin:10px auto;
-  height:500px;
-  gap:10px;
-}
-
-#editor-container, #output-container {
-  flex:1;
-  border:2px solid currentColor;
-  display:flex;
-  flex-direction:column;
-}
-
-.CodeMirror {
-  flex:1;
-  height:100%;
-  text-align:left;
-}
-
-#output {
-  flex:1;
-  background:#111;
-  color:#00ff00;
-  padding:10px;
-  overflow-y:auto;
-  text-align:left;
-}
-body.light #output {
-  background:#fff;
-  color:#000;
-}
-
-#inputBox {
-  padding:10px;
-  font-family:monospace;
+/* ===== Responsive ===== */
+@media(max-width:900px){
+  #ide-container{ flex-direction:column; height:auto; }
 }
 </style>
 
@@ -126,7 +182,9 @@ body.light #output {
 
 <body>
 
-<!-- ========== AUTH PANEL ========== -->
+<div id="welcomeFlash">Welcome to WIDE</div>
+
+<!-- ===== Auth Panel ===== -->
 <div id="authPanel">
   <div id="authBox">
     <h2 id="authTitle">Welcome to WIDE</h2>
@@ -134,7 +192,7 @@ body.light #output {
     <div id="startButtons">
       <button id="btnSignup">Sign Up</button>
       <button id="btnLogin">Log In</button>
-      <button id="btnGuest">Use Without Account</button>
+      <button id="btnGuest">Use as Guest</button>
     </div>
 
     <div id="authForm" style="display:none;">
@@ -147,13 +205,13 @@ body.light #output {
   </div>
 </div>
 
-<!-- ========== IDE ========== -->
-<h1>WIDE</h1>
+<div id="topbar">WIDE — Browser Python IDE</div>
 
 <div id="toolbar">
-  <button id="runBtn">Run Python</button>
-  <button id="downloadBtn">Download .py</button>
-  <button id="fileBtn">Files</button>
+  <button id="runBtn">▶ Run</button>
+  <button id="downloadBtn">💾 Download</button>
+  <button id="shareBtn">🔗 Share</button>
+  <button id="fileBtn">📂 Files</button>
   <select id="fileList">
     <option value="">Select file...</option>
   </select>
@@ -171,174 +229,152 @@ body.light #output {
 </div>
 
 <script>
-/* ========= THEME TOGGLE ========= */
-const themeBtn = document.getElementById("themeBtn");
-
-function setTheme(mode){
-  if(mode==="light"){
-    document.body.classList.add("light");
-    editor.setOption("theme","default");
-    themeBtn.textContent="Dark Mode";
-  } else {
-    document.body.classList.remove("light");
-    editor.setOption("theme","dracula");
-    themeBtn.textContent="Light Mode";
-  }
-  localStorage.setItem("wide_theme", mode);
-}
-
-themeBtn.onclick = ()=>{
-  const isLight = document.body.classList.contains("light");
-  setTheme(isLight ? "dark" : "light");
-};
-
-/* ========= AUTH SYSTEM ========= */
-const authPanel = document.getElementById("authPanel");
-const startButtons = document.getElementById("startButtons");
-const authForm = document.getElementById("authForm");
-const authTitle = document.getElementById("authTitle");
-const authMsg = document.getElementById("authMsg");
-const submitAuth = document.getElementById("submitAuth");
-const backBtn = document.getElementById("backBtn");
-
-let authMode = "";
-let currentUser = null;
-
-function loadUsers(){
-  return JSON.parse(localStorage.getItem("wide_users") || "{}");
-}
-function saveUsers(users){
-  localStorage.setItem("wide_users", JSON.stringify(users));
-}
-
-btnSignup.onclick = ()=>{
-  authMode="signup";
-  startButtons.style.display="none";
-  authForm.style.display="block";
-  authTitle.textContent="Create Account";
-  submitAuth.textContent="Sign Up";
-  authMsg.textContent="";
-};
-
-btnLogin.onclick = ()=>{
-  authMode="login";
-  startButtons.style.display="none";
-  authForm.style.display="block";
-  authTitle.textContent="Log In";
-  submitAuth.textContent="Log In";
-  authMsg.textContent="";
-};
-
-backBtn.onclick = ()=>{
-  authForm.style.display="none";
-  startButtons.style.display="block";
-  authTitle.textContent="Welcome to WIDE";
-};
-
-btnGuest.onclick = ()=>{
-  authPanel.style.display="none";
-  fileBtn.style.display="none";
-  fileList.style.display="none";
-};
-
-submitAuth.onclick = ()=>{
-  const u = username.value.trim();
-  const p = password.value.trim();
-  authMsg.textContent="";
-
-  if(!u || !p){
-    authMsg.textContent="Enter username and password";
-    return;
-  }
-
-  const users = loadUsers();
-
-  if(authMode==="signup"){
-    if(users[u]){
-      authMsg.textContent="Username already exists";
-      return;
-    }
-    users[u] = {password:p, files:{}};
-    saveUsers(users);
-
-    authMode="login";
-    authTitle.textContent="Account created! Now Log In";
-    submitAuth.textContent="Log In";
-    username.value="";
-    password.value="";
-    return;
-  }
-
-  if(authMode==="login"){
-    if(users[u] && users[u].password === p){
-      currentUser = u;
-      authPanel.style.display="none";
-      loadUserFiles();
-    } else {
-      authMsg.textContent="Incorrect username or password";
-    }
-  }
-};
-
-/* ========= FILE SYSTEM ========= */
-const fileBtn = document.getElementById("fileBtn");
-const fileList = document.getElementById("fileList");
-
-function loadUserFiles(){
-  const users = loadUsers();
-  if(!currentUser) return;
-  const userFiles = users[currentUser].files;
-  fileList.innerHTML='<option value="">Select file...</option>';
-  for(const fname in userFiles){
-    const opt=document.createElement("option");
-    opt.value=fname;
-    opt.textContent=fname;
-    fileList.appendChild(opt);
-  }
-}
-
-fileBtn.onclick = ()=>{
-  if(!currentUser) return;
-  const fname = prompt("File name:");
-  if(!fname) return;
-  const users = loadUsers();
-  users[currentUser].files[fname] = editor.getValue();
-  saveUsers(users);
-  loadUserFiles();
-};
-
-fileList.onchange = ()=>{
-  const users = loadUsers();
-  const fname = fileList.value;
-  if(fname && users[currentUser].files[fname]){
-    editor.setValue(users[currentUser].files[fname]);
-  }
-};
-
-/* ========= PYTHON IDE ========= */
+/* ===== CodeMirror ===== */
 const editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
   mode:"python",
   theme:"dracula",
   lineNumbers:true
 });
 
-const output = document.getElementById("output");
-const inputBox = document.getElementById("inputBox");
-let inputResolve=null;
+/* ===== Theme ===== */
+const themeBtn = document.getElementById("themeBtn");
+function setTheme(mode){
+  if(mode==="light"){
+    document.body.classList.add("light");
+    editor.setOption("theme","default");
+    themeBtn.textContent="Dark Mode";
+  }else{
+    document.body.classList.remove("light");
+    editor.setOption("theme","dracula");
+    themeBtn.textContent="Light Mode";
+  }
+  localStorage.setItem("wide_theme",mode);
+}
+themeBtn.onclick=()=>{
+  const isLight=document.body.classList.contains("light");
+  setTheme(isLight?"dark":"light");
+};
 
-function outf(text){ output.textContent+=text; }
+/* ===== Auth System ===== */
+const authPanel=document.getElementById("authPanel");
+const startButtons=document.getElementById("startButtons");
+const authForm=document.getElementById("authForm");
+const authTitle=document.getElementById("authTitle");
+const authMsg=document.getElementById("authMsg");
+const submitAuth=document.getElementById("submitAuth");
+const backBtn=document.getElementById("backBtn");
 
-function builtinInput(promptText){
-  output.textContent+=promptText+"\n";
-  return new Promise(resolve=>inputResolve=resolve);
+let authMode="";
+let currentUser=null;
+
+function loadUsers(){ return JSON.parse(localStorage.getItem("wide_users")||"{}"); }
+function saveUsers(u){ localStorage.setItem("wide_users",JSON.stringify(u)); }
+
+btnSignup.onclick=()=>{
+  authMode="signup";
+  startButtons.style.display="none";
+  authForm.style.display="block";
+  authTitle.textContent="Create Account";
+  submitAuth.textContent="Sign Up";
+};
+
+btnLogin.onclick=()=>{
+  authMode="login";
+  startButtons.style.display="none";
+  authForm.style.display="block";
+  authTitle.textContent="Log In";
+  submitAuth.textContent="Log In";
+};
+
+backBtn.onclick=()=>{
+  authForm.style.display="none";
+  startButtons.style.display="block";
+  authTitle.textContent="Welcome to WIDE";
+  authMsg.textContent="";
+};
+
+btnGuest.onclick=()=>{
+  authPanel.style.display="none";
+  fileBtn.style.display="none";
+  fileList.style.display="none";
+};
+
+submitAuth.onclick=()=>{
+  const u=username.value.trim();
+  const p=password.value.trim();
+  authMsg.textContent="";
+  if(!u||!p){ authMsg.textContent="Enter username and password"; return; }
+  const users=loadUsers();
+
+  if(authMode==="signup"){
+    if(users[u]){ authMsg.textContent="Username already exists"; return; }
+    users[u]={password:p,files:{}};
+    saveUsers(users);
+    authTitle.textContent="Account created! Now Log In";
+    authMode="login";
+    submitAuth.textContent="Log In";
+    username.value=""; password.value="";
+    return;
+  }
+
+  if(authMode==="login"){
+    if(users[u] && users[u].password===p){
+      currentUser=u;
+      authPanel.style.display="none";
+      loadUserFiles();
+
+      const wf=document.getElementById("welcomeFlash");
+      wf.style.opacity="1";
+      setTimeout(()=>wf.style.opacity="0",1200);
+    } else authMsg.textContent="Incorrect details";
+  }
+};
+
+/* ===== File System ===== */
+const fileBtn=document.getElementById("fileBtn");
+const fileList=document.getElementById("fileList");
+
+function loadUserFiles(){
+  const users=loadUsers();
+  const files=users[currentUser].files;
+  fileList.innerHTML='<option value="">Select file...</option>';
+  for(const f in files){
+    const o=document.createElement("option");
+    o.value=f; o.textContent=f;
+    fileList.appendChild(o);
+  }
 }
 
-inputBox.addEventListener("keydown", e=>{
-  if(e.key==="Enter" && inputResolve){
-    const val=inputBox.value;
-    output.textContent+=val+"\n";
+fileBtn.onclick=()=>{
+  if(!currentUser) return;
+  const fname=prompt("File name:");
+  if(!fname) return;
+  const users=loadUsers();
+  users[currentUser].files[fname]=editor.getValue();
+  saveUsers(users);
+  loadUserFiles();
+};
+
+fileList.onchange=()=>{
+  const users=loadUsers();
+  const fname=fileList.value;
+  if(fname) editor.setValue(users[currentUser].files[fname]);
+};
+
+/* ===== Python Runner ===== */
+const output=document.getElementById("output");
+const inputBox=document.getElementById("inputBox");
+let inputResolve=null;
+
+function outf(t){ output.textContent+=t; }
+function builtinInput(p){ output.textContent+=p+"\n"; return new Promise(r=>inputResolve=r); }
+
+inputBox.addEventListener("keydown",e=>{
+  if(e.key==="Enter"&&inputResolve){
+    const v=inputBox.value;
+    output.textContent+=v+"\n";
     inputBox.value="";
-    inputResolve(val);
+    inputResolve(v);
     inputResolve=null;
   }
 });
@@ -348,31 +384,37 @@ function builtinRead(x){
   return Sk.builtinFiles["files"][x];
 }
 
-runBtn.onclick = ()=>{
+runBtn.onclick=()=>{
   output.textContent="";
-  Sk.configure({output:outf, read:builtinRead, inputfun:builtinInput, inputfunTakesPrompt:true});
-  Sk.misceval.asyncToPromise(()=>Sk.importMainWithBody("<stdin>", false, editor.getValue(), true))
-  .catch(err=>output.textContent+=err.toString());
+  Sk.configure({output:outf,read:builtinRead,inputfun:builtinInput,inputfunTakesPrompt:true});
+  Sk.misceval.asyncToPromise(()=>Sk.importMainWithBody("<stdin>",false,editor.getValue(),true))
+  .catch(e=>output.textContent+=e.toString());
 };
 
-downloadBtn.onclick = ()=>{
-  const blob = new Blob([editor.getValue()],{type:"text/plain"});
+/* ===== Download ===== */
+downloadBtn.onclick=()=>{
+  const blob=new Blob([editor.getValue()],{type:"text/plain"});
   const a=document.createElement("a");
   a.href=URL.createObjectURL(blob);
   a.download="code.py";
   a.click();
 };
 
-/* ===== Load saved theme on startup ===== */
-window.onload = ()=>{
-  const savedTheme = localStorage.getItem("wide_theme") || "dark";
-  setTheme(savedTheme);
+/* ===== Share ===== */
+shareBtn.onclick=()=>{
+  const url=`${location.origin}${location.pathname}?code=${encodeURIComponent(editor.getValue())}`;
+  navigator.clipboard.writeText(url);
+  alert("Share link copied!");
+};
+
+/* ===== Load Saved Theme ===== */
+window.onload=()=>{
+  setTheme(localStorage.getItem("wide_theme")||"dark");
 };
 </script>
 
 </body>
 </html>
-
 
 
 
