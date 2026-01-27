@@ -2,178 +2,100 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>WIDE - Browser Python IDE</title>
+<title>WIDE - Python IDE</title>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
 
 <style>
-:root{
-  --bg:#1e1e1e;
-  --fg:#ffffff;
-  --panel:#252526;
-  --accent:#00bcd4;
-  --border:#333;
-  --output:#111;
-}
-
-body.light{
-  --bg:#f5f5f5;
-  --fg:#111;
-  --panel:#ffffff;
-  --accent:#007acc;
-  --border:#ccc;
-  --output:#ffffff;
-}
-
-body{
+/* ---------------- BODY ---------------- */
+body {
   margin:0;
-  font-family:monospace;
-  background:var(--bg);
-  color:var(--fg);
+  padding:20px;
+  font-family: monospace;
+  background-color:#1e1e1e;
+  color:white;
   text-align:center;
 }
 
-/* ===== Header ===== */
-#topbar{
-  background:var(--panel);
-  padding:12px;
-  font-size:26px;
-  letter-spacing:3px;
-  border-bottom:2px solid var(--accent);
-  box-shadow:0 2px 8px rgba(0,0,0,0.4);
+/* ---------------- HEADER ---------------- */
+h1 {
+  font-size:48px;
+  margin-bottom:20px;
+  letter-spacing:2px;
 }
 
-/* ===== Toolbar ===== */
-#toolbar{
-  background:var(--panel);
-  padding:10px;
-  margin:15px auto;
-  border-radius:8px;
-  display:inline-block;
-  box-shadow:0 4px 10px rgba(0,0,0,0.4);
+/* ---------------- TOOLBAR ---------------- */
+#toolbar {
+  margin-bottom:10px;
 }
-
-#toolbar button, #toolbar select{
-  background:transparent;
-  color:var(--fg);
-  border:1px solid var(--border);
-  padding:8px 14px;
-  margin:4px;
-  font-size:15px;
-  border-radius:6px;
+#toolbar button {
+  padding:12px 24px;
+  font-size:18px;
+  background-color:#6272a4;
+  color:white;
+  border:1px solid #fff;
+  border-radius:5px;
   cursor:pointer;
-  transition:0.2s;
+  margin:5px;
+}
+#toolbar select {
+  font-size:16px;
+  margin-left:5px;
 }
 
-#toolbar button:hover{
-  border-color:var(--accent);
-  color:var(--accent);
-}
-
-/* ===== IDE ===== */
-#ide-container{
-  width:92%;
-  margin:auto;
-  height:520px;
+/* ---------------- IDE LAYOUT ---------------- */
+#ide-container {
   display:flex;
-  gap:12px;
+  width:90%;
+  margin:0 auto;
+  height:500px;
+  gap:10px;
 }
 
-#editor-container,#output-container{
+#editor-container, #output-container {
   flex:1;
-  background:var(--panel);
-  border:1px solid var(--border);
-  border-radius:8px;
   display:flex;
   flex-direction:column;
-  box-shadow:0 4px 12px rgba(0,0,0,0.4);
-  overflow:hidden;
-}
-
-.CodeMirror{
-  flex:1;
+  border:2px solid white;
+  box-sizing:border-box;
   height:100%;
-  text-align:left;
 }
 
-#output{
+/* CodeMirror fills container */
+.CodeMirror { flex:1; height:100%; text-align:left; }
+
+/* Output */
+#output {
   flex:1;
-  background:var(--output);
+  background-color:#111;
+  color:#00ff00;
   padding:10px;
+  white-space:pre-wrap;
   overflow-y:auto;
   text-align:left;
-  color:#00ff88;
 }
 
-body.light #output{ color:#000; }
-
-#inputBox{
-  border:none;
-  border-top:1px solid var(--border);
+/* Input box */
+#inputBox {
+  margin-top:5px;
+  width:100%;
   padding:10px;
   font-family:monospace;
-  outline:none;
-  background:var(--panel);
-  color:var(--fg);
+  font-size:16px;
 }
 
-/* ===== Welcome Animation ===== */
-#welcomeFlash{
-  position:fixed;
-  inset:0;
-  background:var(--bg);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  font-size:32px;
-  letter-spacing:3px;
-  z-index:20;
-  opacity:0;
-  pointer-events:none;
-  transition:opacity 1s;
+/* Light mode */
+body.light {
+  background-color:#f5f5f5;
+  color:#111;
 }
-
-/* ===== Auth Panel ===== */
-#authPanel{
-  position:fixed;
-  inset:0;
-  background:var(--bg);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  z-index:30;
-}
-
-#authBox{
-  background:var(--panel);
-  padding:30px;
-  border:2px solid var(--border);
-  border-radius:10px;
-  width:320px;
-}
-
-#authBox input{
-  width:90%;
-  padding:10px;
-  margin:8px 0;
-  font-family:monospace;
-}
-
-#authBox button{
-  padding:10px 16px;
-  margin:5px;
-  cursor:pointer;
-}
-
-#authMsg{ color:#ff5555; min-height:18px; }
-
-/* ===== Responsive ===== */
-@media(max-width:900px){
-  #ide-container{ flex-direction:column; height:auto; }
-}
+body.light #editor-container, body.light #output-container { border-color:#111; }
+body.light #output { background-color:#fff; color:#000; }
+body.light #toolbar button { background-color:#ddd; color:#000; border-color:#000; }
 </style>
 
+<!-- ---------------- SCRIPTS ---------------- -->
 <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
@@ -182,234 +104,206 @@ body.light #output{ color:#000; }
 
 <body>
 
-<div id="welcomeFlash">Welcome to WIDE</div>
+<h1>WIDE</h1>
 
-<!-- ===== Auth Panel ===== -->
-<div id="authPanel">
-  <div id="authBox">
-    <h2 id="authTitle">Welcome to WIDE</h2>
-
-    <div id="startButtons">
-      <button id="btnSignup">Sign Up</button>
-      <button id="btnLogin">Log In</button>
-      <button id="btnGuest">Use as Guest</button>
-    </div>
-
-    <div id="authForm" style="display:none;">
-      <input id="username" placeholder="Username">
-      <input id="password" type="password" placeholder="Password">
-      <button id="submitAuth"></button>
-      <p id="authMsg"></p>
-      <button id="backBtn">Back</button>
-    </div>
-  </div>
+<!-- SIGN UP / LOGIN -->
+<div id="authContainer">
+  <button id="signUpBtn">Sign Up</button>
+  <button id="loginBtn">Log In</button>
+  <button id="guestBtn">Continue as Guest</button>
 </div>
 
-<div id="topbar">WIDE — Browser Python IDE</div>
-
-<div id="toolbar">
-  <button id="runBtn">▶ Run</button>
-  <button id="downloadBtn">💾 Download</button>
-  <button id="shareBtn">🔗 Share</button>
-  <button id="fileBtn">📂 Files</button>
+<!-- TOOLBAR -->
+<div id="toolbar" style="display:none;">
+  <button id="runBtn">Run Python</button>
+  <button id="downloadBtn">Download .py</button>
+  <button id="shareBtn">Share this code</button>
+  <button id="themeBtn">Light Mode</button>
+  <button id="fileBtn">Save File</button>
+  <button id="deleteFileBtn">Delete File</button>
+  <button id="renameFileBtn">Rename File</button>
   <select id="fileList">
     <option value="">Select file...</option>
   </select>
-  <button id="themeBtn">Light Mode</button>
 </div>
 
-<div id="ide-container">
+<!-- IDE -->
+<div id="ide-container" style="display:none;">
   <div id="editor-container">
     <textarea id="editor"></textarea>
   </div>
   <div id="output-container">
+    <h2>Output</h2>
     <pre id="output"></pre>
     <input id="inputBox" placeholder="Type input and press Enter">
   </div>
 </div>
 
 <script>
-/* ===== CodeMirror ===== */
+/* ---------------- AUTH ---------------- */
+let users = JSON.parse(localStorage.getItem("wide_users") || "{}");
+let currentUser = null;
+
+const authContainer = document.getElementById("authContainer");
+const toolbar = document.getElementById("toolbar");
+const ideContainer = document.getElementById("ide-container");
+
+function showIDE() {
+  authContainer.style.display = "none";
+  toolbar.style.display = "block";
+  ideContainer.style.display = "flex";
+}
+
+document.getElementById("signUpBtn").onclick = () => {
+  const username = prompt("Choose a username:");
+  if(!username) return alert("Username required!");
+  if(users[username]) return alert("Username taken!");
+  const password = prompt("Choose a password:");
+  if(!password) return alert("Password required!");
+  users[username] = password;
+  localStorage.setItem("wide_users", JSON.stringify(users));
+  alert("Sign up complete! Please log in now.");
+};
+
+document.getElementById("loginBtn").onclick = () => {
+  const username = prompt("Username:");
+  const password = prompt("Password:");
+  if(users[username] && users[username] === password){
+    currentUser = username;
+    alert("Welcome to WIDE, " + username + "!");
+    showIDE();
+  } else {
+    alert("Incorrect username or password.");
+  }
+};
+
+document.getElementById("guestBtn").onclick = () => {
+  currentUser = "Guest";
+  showIDE();
+};
+
+/* ---------------- CODE EDITOR ---------------- */
 const editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
   mode:"python",
   theme:"dracula",
-  lineNumbers:true
+  lineNumbers:true,
+  indentUnit:4,
+  tabSize:4
 });
 
-/* ===== Theme ===== */
+const output = document.getElementById("output");
+const inputBox = document.getElementById("inputBox");
+let inputResolve = null;
+
+function outf(text){output.textContent += text;}
+function builtinInput(promptText){output.textContent+=promptText+"\n"; inputBox.focus(); return new Promise(resolve=>inputResolve=resolve);}
+inputBox.addEventListener("keydown", e => { if(e.key==="Enter" && inputResolve){ const val=inputBox.value; output.textContent+=val+"\n"; inputBox.value=""; inputResolve(val); inputResolve=null; }});
+function builtinRead(x){ if(!Sk.builtinFiles||!Sk.builtinFiles["files"][x]) throw "File not found: '"+x+"'"; return Sk.builtinFiles["files"][x]; }
+
+function runCode(){ 
+  output.textContent="";
+  Sk.configure({output:outf, read:builtinRead, inputfun:builtinInput, inputfunTakesPrompt:true});
+  Sk.misceval.asyncToPromise(()=>Sk.importMainWithBody("<stdin>", false, editor.getValue(), true))
+  .catch(err=>output.textContent+=err.toString());
+}
+document.getElementById("runBtn").onclick = runCode;
+
+// Auto-save
+editor.on("change", ()=>localStorage.setItem("willIDE_code",editor.getValue()));
+
+// Load saved code and theme
+window.onload = ()=>{
+  const saved=localStorage.getItem("willIDE_code");
+  if(saved) editor.setValue(saved);
+  const theme = localStorage.getItem("wide_theme") || "dark";
+  setTheme(theme);
+  editor.refresh();
+};
+
+/* ---------------- DOWNLOAD ---------------- */
+document.getElementById("downloadBtn").onclick = ()=>{
+  const blob = new Blob([editor.getValue()], {type:"text/plain"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download="code.py";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+};
+
+/* ---------------- SHARE ---------------- */
+document.getElementById("shareBtn").onclick = ()=>{
+  const url = `${location.origin}${location.pathname}?code=${encodeURIComponent(editor.getValue())}`;
+  navigator.clipboard.writeText(url);
+  alert("Share URL copied!");
+};
+
+/* ---------------- THEME ---------------- */
 const themeBtn = document.getElementById("themeBtn");
 function setTheme(mode){
-  if(mode==="light"){
-    document.body.classList.add("light");
-    editor.setOption("theme","default");
-    themeBtn.textContent="Dark Mode";
-  }else{
-    document.body.classList.remove("light");
-    editor.setOption("theme","dracula");
-    themeBtn.textContent="Light Mode";
-  }
-  localStorage.setItem("wide_theme",mode);
+  if(mode==="light"){ document.body.classList.add("light"); editor.setOption("theme","default"); themeBtn.textContent="Dark Mode"; }
+  else{ document.body.classList.remove("light"); editor.setOption("theme","dracula"); themeBtn.textContent="Light Mode"; }
+  localStorage.setItem("wide_theme", mode);
 }
-themeBtn.onclick=()=>{
-  const isLight=document.body.classList.contains("light");
-  setTheme(isLight?"dark":"light");
-};
+themeBtn.onclick = ()=>setTheme(document.body.classList.contains("light")?"dark":"light");
 
-/* ===== Auth System ===== */
-const authPanel=document.getElementById("authPanel");
-const startButtons=document.getElementById("startButtons");
-const authForm=document.getElementById("authForm");
-const authTitle=document.getElementById("authTitle");
-const authMsg=document.getElementById("authMsg");
-const submitAuth=document.getElementById("submitAuth");
-const backBtn=document.getElementById("backBtn");
+/* ---------------- FILE MANAGEMENT ---------------- */
+let files = {}; // in-memory storage
 
-let authMode="";
-let currentUser=null;
+const fileBtn = document.getElementById("fileBtn");
+const deleteFileBtn = document.getElementById("deleteFileBtn");
+const renameFileBtn = document.getElementById("renameFileBtn");
+const fileList = document.getElementById("fileList");
 
-function loadUsers(){ return JSON.parse(localStorage.getItem("wide_users")||"{}"); }
-function saveUsers(u){ localStorage.setItem("wide_users",JSON.stringify(u)); }
-
-btnSignup.onclick=()=>{
-  authMode="signup";
-  startButtons.style.display="none";
-  authForm.style.display="block";
-  authTitle.textContent="Create Account";
-  submitAuth.textContent="Sign Up";
-};
-
-btnLogin.onclick=()=>{
-  authMode="login";
-  startButtons.style.display="none";
-  authForm.style.display="block";
-  authTitle.textContent="Log In";
-  submitAuth.textContent="Log In";
-};
-
-backBtn.onclick=()=>{
-  authForm.style.display="none";
-  startButtons.style.display="block";
-  authTitle.textContent="Welcome to WIDE";
-  authMsg.textContent="";
-};
-
-btnGuest.onclick=()=>{
-  authPanel.style.display="none";
-  fileBtn.style.display="none";
-  fileList.style.display="none";
-};
-
-submitAuth.onclick=()=>{
-  const u=username.value.trim();
-  const p=password.value.trim();
-  authMsg.textContent="";
-  if(!u||!p){ authMsg.textContent="Enter username and password"; return; }
-  const users=loadUsers();
-
-  if(authMode==="signup"){
-    if(users[u]){ authMsg.textContent="Username already exists"; return; }
-    users[u]={password:p,files:{}};
-    saveUsers(users);
-    authTitle.textContent="Account created! Now Log In";
-    authMode="login";
-    submitAuth.textContent="Log In";
-    username.value=""; password.value="";
-    return;
-  }
-
-  if(authMode==="login"){
-    if(users[u] && users[u].password===p){
-      currentUser=u;
-      authPanel.style.display="none";
-      loadUserFiles();
-
-      const wf=document.getElementById("welcomeFlash");
-      wf.style.opacity="1";
-      setTimeout(()=>wf.style.opacity="0",1200);
-    } else authMsg.textContent="Incorrect details";
-  }
-};
-
-/* ===== File System ===== */
-const fileBtn=document.getElementById("fileBtn");
-const fileList=document.getElementById("fileList");
-
-function loadUserFiles(){
-  const users=loadUsers();
-  const files=users[currentUser].files;
-  fileList.innerHTML='<option value="">Select file...</option>';
-  for(const f in files){
-    const o=document.createElement("option");
-    o.value=f; o.textContent=f;
-    fileList.appendChild(o);
+function updateFileList() {
+  fileList.innerHTML = '<option value="">Select file...</option>';
+  for (const fname in files) {
+    const option = document.createElement("option");
+    option.value = fname;
+    option.textContent = fname;
+    fileList.appendChild(option);
   }
 }
 
-fileBtn.onclick=()=>{
-  if(!currentUser) return;
-  const fname=prompt("File name:");
+// Save file
+fileBtn.onclick = () => {
+  if(currentUser === "Guest") return alert("Files are only for signed-in users.");
+  const fname = prompt("Enter file name:");
   if(!fname) return;
-  const users=loadUsers();
-  users[currentUser].files[fname]=editor.getValue();
-  saveUsers(users);
-  loadUserFiles();
+  files[fname] = editor.getValue();
+  updateFileList();
+  alert(`Saved as ${fname}`);
 };
 
-fileList.onchange=()=>{
-  const users=loadUsers();
-  const fname=fileList.value;
-  if(fname) editor.setValue(users[currentUser].files[fname]);
+// Delete file
+deleteFileBtn.onclick = () => {
+  if(currentUser === "Guest") return alert("Files are only for signed-in users.");
+  const fname = fileList.value;
+  if(!fname) return alert("Select a file to delete");
+  if(!confirm("Delete " + fname + "?")) return;
+  delete files[fname];
+  updateFileList();
+  editor.setValue("");
+  alert(fname + " deleted");
 };
 
-/* ===== Python Runner ===== */
-const output=document.getElementById("output");
-const inputBox=document.getElementById("inputBox");
-let inputResolve=null;
-
-function outf(t){ output.textContent+=t; }
-function builtinInput(p){ output.textContent+=p+"\n"; return new Promise(r=>inputResolve=r); }
-
-inputBox.addEventListener("keydown",e=>{
-  if(e.key==="Enter"&&inputResolve){
-    const v=inputBox.value;
-    output.textContent+=v+"\n";
-    inputBox.value="";
-    inputResolve(v);
-    inputResolve=null;
-  }
-});
-
-function builtinRead(x){
-  if(!Sk.builtinFiles["files"][x]) throw "File not found";
-  return Sk.builtinFiles["files"][x];
-}
-
-runBtn.onclick=()=>{
-  output.textContent="";
-  Sk.configure({output:outf,read:builtinRead,inputfun:builtinInput,inputfunTakesPrompt:true});
-  Sk.misceval.asyncToPromise(()=>Sk.importMainWithBody("<stdin>",false,editor.getValue(),true))
-  .catch(e=>output.textContent+=e.toString());
+// Rename file
+renameFileBtn.onclick = () => {
+  if(currentUser === "Guest") return alert("Files are only for signed-in users.");
+  const fname = fileList.value;
+  if(!fname) return alert("Select a file to rename");
+  const newName = prompt("Enter new name for " + fname + ":");
+  if(!newName) return;
+  if(files[newName] !== undefined) return alert("A file with that name exists!");
+  files[newName] = files[fname];
+  delete files[fname];
+  updateFileList();
+  fileList.value = newName;
+  alert(fname + " renamed to " + newName);
 };
 
-/* ===== Download ===== */
-downloadBtn.onclick=()=>{
-  const blob=new Blob([editor.getValue()],{type:"text/plain"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="code.py";
-  a.click();
-};
-
-/* ===== Share ===== */
-shareBtn.onclick=()=>{
-  const url=`${location.origin}${location.pathname}?code=${encodeURIComponent(editor.getValue())}`;
-  navigator.clipboard.writeText(url);
-  alert("Share link copied!");
-};
-
-/* ===== Load Saved Theme ===== */
-window.onload=()=>{
-  setTheme(localStorage.getItem("wide_theme")||"dark");
+// Load file into editor
+fileList.onchange = () => {
+  const fname = fileList.value;
+  if(fname && files[fname] !== undefined) editor.setValue(files[fname]);
 };
 </script>
 
