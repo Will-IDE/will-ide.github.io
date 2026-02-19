@@ -93,12 +93,12 @@ body{
   overflow:hidden;
 }
 
-/* CodeMirror Styling */
+/* CodeMirror */
 .CodeMirror{
   flex:1;
   height:100%;
   font-size:14px;
-  text-align:left; /* FIXED */
+  text-align:left;
 }
 
 .cm-s-dracula.CodeMirror{
@@ -139,10 +139,10 @@ body.light #output{ color:#000; }
   position:fixed;
   inset:0;
   background:var(--bg);
-  display:flex;
+  display:none;
   justify-content:center;
   align-items:center;
-  z-index:30;
+  z-index:40;
 }
 
 #authBox{
@@ -167,6 +167,52 @@ body.light #output{ color:#000; }
 
 #authMsg{ color:#ff5555; min-height:18px; }
 
+/* Welcome Screen */
+#welcomeScreen{
+  position:fixed;
+  inset:0;
+  background:var(--bg);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:50;
+}
+
+#welcomeBox{
+  background:var(--panel);
+  padding:40px;
+  border:2px solid var(--accent);
+  border-radius:12px;
+  text-align:center;
+  width:350px;
+}
+
+#welcomeBox h1{
+  margin-top:0;
+  color:var(--accent);
+}
+
+.welcome-buttons{
+  margin-top:20px;
+}
+
+.welcome-buttons button{
+  display:block;
+  width:100%;
+  margin:10px 0;
+  padding:12px;
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--fg);
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.welcome-buttons button:hover{
+  border-color:var(--accent);
+  color:var(--accent);
+}
+
 @media(max-width:900px){
   #ide-container{ flex-direction:column; height:auto; }
 }
@@ -174,15 +220,69 @@ body.light #output{ color:#000; }
 </head>
 <body>
 
-<!-- Everything else remains EXACTLY the same -->
+<!-- Welcome Screen -->
+<div id="welcomeScreen">
+  <div id="welcomeBox">
+    <h1>Welcome to WIDE</h1>
+    <p>Your Browser-Based Python IDE</p>
+    <div class="welcome-buttons">
+      <button onclick="showSignUp()">Sign Up</button>
+      <button onclick="showLogin()">Log In</button>
+      <button onclick="continueAsGuest()">Use as Guest</button>
+    </div>
+  </div>
+</div>
+
+<!-- Auth Panel -->
+<div id="authPanel">
+  <div id="authBox">
+    <h2>Authentication</h2>
+    <input type="text" placeholder="Username">
+    <input type="password" placeholder="Password">
+    <div id="authMsg"></div>
+    <button onclick="closeAuth()">Continue</button>
+  </div>
+</div>
+
+<!-- Main IDE -->
+<div id="topbar">WIDE - Browser Python IDE</div>
+
+<div id="ide-container">
+  <div id="editor-container">
+    <textarea id="code">print("Hello, WIDE!")</textarea>
+  </div>
+  <div id="output-container">
+    <div id="output"></div>
+  </div>
+</div>
 
 <script>
-/* Your entire original JavaScript remains unchanged */
+/* Welcome Screen Logic */
+function hideWelcome(){
+  document.getElementById("welcomeScreen").style.display = "none";
+}
+
+function showSignUp(){
+  hideWelcome();
+  document.getElementById("authPanel").style.display = "flex";
+}
+
+function showLogin(){
+  hideWelcome();
+  document.getElementById("authPanel").style.display = "flex";
+}
+
+function continueAsGuest(){
+  hideWelcome();
+}
+
+function closeAuth(){
+  document.getElementById("authPanel").style.display = "none";
+}
 </script>
 
 </body>
 </html>
-
 
 
 
