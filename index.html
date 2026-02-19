@@ -7,7 +7,6 @@
 <!-- CodeMirror -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
 
@@ -16,81 +15,61 @@
 <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
 
 <style>
-:root{
-  --bg:#1e1e1e;
-  --fg:#ffffff;
-  --panel:#252526;
-  --accent:#00bcd4;
-  --border:#333;
-  --output:#111;
-}
-
-body.light{
-  --bg:#f5f5f5;
-  --fg:#111;
-  --panel:#ffffff;
-  --accent:#007acc;
-  --border:#ccc;
-  --output:#ffffff;
-}
-
 body{
   margin:0;
   font-family:monospace;
-  background:var(--bg);
-  color:var(--fg);
+  background:#111;
+  color:#fff;
 }
 
 /* Header */
 #topbar{
-  background:var(--panel);
-  padding:12px;
-  font-size:24px;
-  border-bottom:2px solid var(--accent);
+  background:#000;
+  padding:14px;
+  font-size:22px;
   text-align:center;
+  border-bottom:2px solid #00bcd4;
 }
 
 /* Toolbar */
 #toolbar{
-  background:var(--panel);
+  text-align:center;
   padding:10px;
-  margin:15px auto;
-  border-radius:8px;
-  display:inline-block;
 }
 
-#toolbar button, #toolbar select{
-  background:transparent;
-  color:var(--fg);
-  border:1px solid var(--border);
+#toolbar button{
   padding:8px 14px;
-  margin:4px;
+  margin:5px;
+  background:#000;
+  color:#fff;
+  border:1px solid #333;
   border-radius:6px;
   cursor:pointer;
 }
 
 #toolbar button:hover{
-  border-color:var(--accent);
-  color:var(--accent);
+  border-color:#00bcd4;
+  color:#00bcd4;
 }
 
 /* IDE Layout */
 #ide-container{
-  width:92%;
-  margin:auto;
-  height:520px;
+  width:95%;
+  margin:20px auto;
   display:flex;
-  gap:12px;
+  gap:20px;
 }
 
-#editor-container,#output-container{
+/* Editor + Output Boxes */
+.editor-box, .output-box{
   flex:1;
-  background:var(--panel);
-  border:1px solid var(--border);
-  border-radius:8px;
+  background:#000;
+  border:2px solid #000;
+  border-radius:18px;
+  overflow:hidden;
   display:flex;
   flex-direction:column;
-  overflow:hidden;
+  height:500px;
 }
 
 /* CodeMirror */
@@ -98,80 +77,21 @@ body{
   flex:1;
   height:100%;
   font-size:14px;
-  text-align:left;
-}
-
-.cm-s-dracula.CodeMirror{
-  background:#282a36;
-  color:#f8f8f2;
-}
-
-.cm-s-dracula .CodeMirror-gutters{
-  background:#282a36;
-  border-right:1px solid #444;
 }
 
 /* Output */
 #output{
   flex:1;
-  background:var(--output);
   padding:10px;
   overflow-y:auto;
-  text-align:left;
   color:#00ff88;
 }
-
-body.light #output{ color:#000; }
-
-#inputBox{
-  border:none;
-  border-top:1px solid var(--border);
-  padding:10px;
-  font-family:monospace;
-  outline:none;
-  background:var(--panel);
-  color:var(--fg);
-  text-align:left;
-}
-
-/* Auth Panel */
-#authPanel{
-  position:fixed;
-  inset:0;
-  background:var(--bg);
-  display:none;
-  justify-content:center;
-  align-items:center;
-  z-index:40;
-}
-
-#authBox{
-  background:var(--panel);
-  padding:30px;
-  border:2px solid var(--border);
-  border-radius:10px;
-  width:320px;
-  text-align:center;
-}
-
-#authBox input{
-  width:90%;
-  padding:10px;
-  margin:8px 0;
-}
-
-#authBox button{
-  padding:10px 16px;
-  margin:5px;
-}
-
-#authMsg{ color:#ff5555; min-height:18px; }
 
 /* Welcome Screen */
 #welcomeScreen{
   position:fixed;
   inset:0;
-  background:var(--bg);
+  background:#111;
   display:flex;
   justify-content:center;
   align-items:center;
@@ -179,111 +99,185 @@ body.light #output{ color:#000; }
 }
 
 #welcomeBox{
-  background:var(--panel);
+  background:#000;
   padding:40px;
-  border:2px solid var(--accent);
-  border-radius:12px;
+  border-radius:20px;
   text-align:center;
   width:350px;
 }
 
-#welcomeBox h1{
-  margin-top:0;
-  color:var(--accent);
-}
-
-.welcome-buttons{
-  margin-top:20px;
-}
-
-.welcome-buttons button{
-  display:block;
+#welcomeBox button{
   width:100%;
-  margin:10px 0;
   padding:12px;
-  border:1px solid var(--border);
-  background:transparent;
-  color:var(--fg);
-  border-radius:6px;
+  margin:10px 0;
+  background:#111;
+  border:1px solid #333;
+  color:#fff;
+  border-radius:10px;
   cursor:pointer;
 }
 
-.welcome-buttons button:hover{
-  border-color:var(--accent);
-  color:var(--accent);
+#welcomeBox button:hover{
+  border-color:#00bcd4;
 }
 
-@media(max-width:900px){
-  #ide-container{ flex-direction:column; height:auto; }
+/* Auth Panel */
+#authPanel{
+  position:fixed;
+  inset:0;
+  background:#111;
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:40;
+}
+
+#authBox{
+  background:#000;
+  padding:30px;
+  border-radius:20px;
+  text-align:center;
+  width:320px;
+}
+
+#authBox input{
+  width:90%;
+  padding:10px;
+  margin:8px 0;
+  background:#111;
+  border:1px solid #333;
+  color:#fff;
 }
 </style>
 </head>
 <body>
 
-<!-- Welcome Screen -->
+<!-- Welcome -->
 <div id="welcomeScreen">
   <div id="welcomeBox">
     <h1>Welcome to WIDE</h1>
-    <p>Your Browser-Based Python IDE</p>
-    <div class="welcome-buttons">
-      <button onclick="showSignUp()">Sign Up</button>
-      <button onclick="showLogin()">Log In</button>
-      <button onclick="continueAsGuest()">Use as Guest</button>
-    </div>
+    <button onclick="openAuth('signup')">Sign Up</button>
+    <button onclick="openAuth('login')">Log In</button>
+    <button onclick="enterGuest()">Use as Guest</button>
   </div>
 </div>
 
-<!-- Auth Panel -->
+<!-- Auth -->
 <div id="authPanel">
   <div id="authBox">
-    <h2>Authentication</h2>
-    <input type="text" placeholder="Username">
-    <input type="password" placeholder="Password">
-    <div id="authMsg"></div>
-    <button onclick="closeAuth()">Continue</button>
+    <h2 id="authTitle">Login</h2>
+    <input id="username" placeholder="Username">
+    <input id="password" type="password" placeholder="Password">
+    <button onclick="handleAuth()">Continue</button>
   </div>
 </div>
 
-<!-- Main IDE -->
 <div id="topbar">WIDE - Browser Python IDE</div>
 
+<div id="toolbar">
+  <button onclick="runCode()">Run</button>
+  <button id="saveBtn" style="display:none;" onclick="saveFile()">Save</button>
+  <button id="filesBtn" style="display:none;" onclick="showFiles()">Files</button>
+</div>
+
 <div id="ide-container">
-  <div id="editor-container">
+  <div class="editor-box">
     <textarea id="code">print("Hello, WIDE!")</textarea>
   </div>
-  <div id="output-container">
+  <div class="output-box">
     <div id="output"></div>
   </div>
 </div>
 
 <script>
-/* Welcome Screen Logic */
-function hideWelcome(){
-  document.getElementById("welcomeScreen").style.display = "none";
+let editor = CodeMirror.fromTextArea(document.getElementById("code"),{
+  mode:"python",
+  theme:"dracula",
+  lineNumbers:true
+});
+
+let currentUser = null;
+let authMode = "login";
+
+/* Welcome */
+function openAuth(mode){
+  authMode = mode;
+  document.getElementById("authTitle").innerText = 
+      mode === "signup" ? "Sign Up" : "Log In";
+  document.getElementById("welcomeScreen").style.display="none";
+  document.getElementById("authPanel").style.display="flex";
 }
 
-function showSignUp(){
-  hideWelcome();
-  document.getElementById("authPanel").style.display = "flex";
+function enterGuest(){
+  document.getElementById("welcomeScreen").style.display="none";
 }
 
-function showLogin(){
-  hideWelcome();
-  document.getElementById("authPanel").style.display = "flex";
+/* Auth */
+function handleAuth(){
+  let user = username.value;
+  let pass = password.value;
+  if(!user || !pass) return;
+
+  if(authMode==="signup"){
+    localStorage.setItem("user_"+user, pass);
+  }else{
+    let stored = localStorage.getItem("user_"+user);
+    if(stored !== pass){ alert("Wrong login"); return; }
+  }
+
+  currentUser = user;
+  document.getElementById("authPanel").style.display="none";
+  document.getElementById("saveBtn").style.display="inline-block";
+  document.getElementById("filesBtn").style.display="inline-block";
 }
 
-function continueAsGuest(){
-  hideWelcome();
+/* Save Files */
+function saveFile(){
+  let name = prompt("File name?");
+  if(!name) return;
+  let content = editor.getValue();
+  localStorage.setItem("file_"+currentUser+"_"+name, content);
+  alert("Saved!");
 }
 
-function closeAuth(){
-  document.getElementById("authPanel").style.display = "none";
+function showFiles(){
+  let files = [];
+  for(let i=0;i<localStorage.length;i++){
+    let key = localStorage.key(i);
+    if(key.startsWith("file_"+currentUser+"_")){
+      files.push(key.replace("file_"+currentUser+"_",""));
+    }
+  }
+
+  let choice = prompt("Your files:\n"+files.join("\n")+"\n\nType file name to open:");
+  if(choice){
+    let data = localStorage.getItem("file_"+currentUser+"_"+choice);
+    if(data) editor.setValue(data);
+  }
+}
+
+/* Run Python */
+function runCode(){
+  document.getElementById("output").innerHTML="";
+  Sk.configure({
+    output:function(text){
+      document.getElementById("output").innerHTML+=text;
+    },
+    read:function(x){
+      if(Sk.builtinFiles===undefined || 
+         Sk.builtinFiles["files"][x]===undefined)
+        throw "File not found: '"+x+"'";
+      return Sk.builtinFiles["files"][x];
+    }
+  });
+  Sk.misceval.asyncToPromise(function(){
+    return Sk.importMainWithBody("<stdin>", false, editor.getValue(), true);
+  });
 }
 </script>
 
 </body>
 </html>
-
 
 
 
