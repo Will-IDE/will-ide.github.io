@@ -22,7 +22,6 @@ body{
   color:#fff;
 }
 
-/* Header */
 #topbar{
   background:#000;
   padding:14px;
@@ -31,7 +30,6 @@ body{
   border-bottom:2px solid #00bcd4;
 }
 
-/* Toolbar */
 #toolbar{
   text-align:center;
   padding:10px;
@@ -52,7 +50,6 @@ body{
   color:#00bcd4;
 }
 
-/* IDE Layout */
 #ide-container{
   width:95%;
   margin:20px auto;
@@ -60,11 +57,9 @@ body{
   gap:20px;
 }
 
-/* Editor + Output Boxes */
 .editor-box, .output-box{
   flex:1;
   background:#000;
-  border:2px solid #000;
   border-radius:18px;
   overflow:hidden;
   display:flex;
@@ -72,14 +67,12 @@ body{
   height:500px;
 }
 
-/* CodeMirror */
 .CodeMirror{
   flex:1;
   height:100%;
   font-size:14px;
 }
 
-/* Output */
 #output{
   flex:1;
   padding:10px;
@@ -87,7 +80,6 @@ body{
   color:#00ff88;
 }
 
-/* Welcome Screen */
 #welcomeScreen{
   position:fixed;
   inset:0;
@@ -121,7 +113,6 @@ body{
   border-color:#00bcd4;
 }
 
-/* Auth Panel */
 #authPanel{
   position:fixed;
   inset:0;
@@ -176,8 +167,9 @@ body{
 
 <div id="toolbar">
   <button onclick="runCode()">Run</button>
-  <button id="saveBtn" style="display:none;" onclick="saveFile()">Save</button>
   <button id="filesBtn" style="display:none;" onclick="showFiles()">Files</button>
+  <button id="copyBtn" style="display:none;" onclick="copyCode()">Copy Code</button>
+  <button id="logoutBtn" style="display:none;" onclick="logout()">Logout</button>
 </div>
 
 <div id="ide-container">
@@ -209,38 +201,66 @@ function openAuth(mode){
 }
 
 function enterGuest(){
+  currentUser = "guest";
   document.getElementById("welcomeScreen").style.display="none";
 }
 
 /* Auth */
 function handleAuth(){
-  let user = username.value;
-  let pass = password.value;
-  if(!user || !pass) return;
+  let user = username.value.trim();
+  let pass = password.value.trim();
+  if(!user || !pass) return alert("Fill all fields");
 
   if(authMode==="signup"){
+    if(localStorage.getItem("user_"+user)){
+      alert("User already exists. Please log in.");
+      return;
+    }
     localStorage.setItem("user_"+user, pass);
-  }else{
-    let stored = localStorage.getItem("user_"+user);
-    if(stored !== pass){ alert("Wrong login"); return; }
+    alert("Signup successful! Please log in.");
+    openAuth("login");
+    return;
   }
 
-  currentUser = user;
-  document.getElementById("authPanel").style.display="none";
-  document.getElementById("saveBtn").style.display="inline-block";
-  document.getElementById("filesBtn").style.display="inline-block";
+  if(authMode==="login"){
+    let stored = localStorage.getItem("user_"+user);
+    if(!stored){
+      alert("Account not found. Please sign up first.");
+      openAuth("signup");
+      return;
+    }
+    if(stored !== pass){
+      alert("Wrong password.");
+      return;
+    }
+
+    currentUser = user;
+    document.getElementById("authPanel").style.display="none";
+    document.getElementById("filesBtn").style.display="inline-block";
+    document.getElementById("copyBtn").style.display="inline-block";
+    document.getElementById("logoutBtn").style.display="inline-block";
+  }
 }
 
-/* Save Files */
-function saveFile(){
-  let name = prompt("File name?");
-  if(!name) return;
-  let content = editor.getValue();
-  localStorage.setItem("file_"+currentUser+"_"+name, content);
-  alert("Saved!");
+/* Logout */
+function logout(){
+  currentUser = null;
+  location.reload();
 }
 
+/* Copy Code */
+function copyCode(){
+  navigator.clipboard.writeText(editor.getValue());
+  alert("Code copied!");
+}
+
+/* Files */
 function showFiles(){
+  if(currentUser==="guest"){
+    alert("Guests cannot save files.");
+    return;
+  }
+
   let files = [];
   for(let i=0;i<localStorage.length;i++){
     let key = localStorage.key(i);
@@ -249,10 +269,15 @@ function showFiles(){
     }
   }
 
-  let choice = prompt("Your files:\n"+files.join("\n")+"\n\nType file name to open:");
-  if(choice){
-    let data = localStorage.getItem("file_"+currentUser+"_"+choice);
-    if(data) editor.setValue(data);
+  let choice = prompt("Your files:\n"+files.join("\n")+"\n\nType file name to open or new name to save:");
+  if(!choice) return;
+
+  let existing = localStorage.getItem("file_"+currentUser+"_"+choice);
+  if(existing){
+    editor.setValue(existing);
+  }else{
+    localStorage.setItem("file_"+currentUser+"_"+choice, editor.getValue());
+    alert("Saved as new file!");
   }
 }
 
@@ -278,8 +303,6 @@ function runCode(){
 
 </body>
 </html>
-
-
 
 
 
