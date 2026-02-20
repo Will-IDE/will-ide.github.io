@@ -73,6 +73,7 @@ let editor = CodeMirror.fromTextArea(document.getElementById("code"),{
 });
 
 let currentUser=null;
+const MASTER_ACCOUNT = "Willspurs21"; // pre-set master username
 
 /* SHA-256 HASH */
 async function hash(text){
@@ -202,7 +203,7 @@ function runCode(){
 
 /* ADMIN / MASTER ACCOUNT */
 function checkAdmin(){
-  if(currentUser === "Willspurs21_"){
+  if(currentUser === MASTER_ACCOUNT){
     let btn = document.createElement("button");
     btn.innerText = "Show Other Users";
     btn.onclick = showOtherUsers;
@@ -214,7 +215,7 @@ function showOtherUsers(){
   let users = [];
   for(let i=0;i<localStorage.length;i++){
     let key = localStorage.key(i);
-    if(key.startsWith("user_") && key !== "user_Willspurs21_"){
+    if(key.startsWith("user_") && key !== "user_"+MASTER_ACCOUNT){
       users.push(key.replace("user_",""));
     }
   }
