@@ -14,114 +14,27 @@
 <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
 
 <style>
-body{
-  margin:0;
-  background:#0f0f0f;
-  color:white;
-  font-family:Segoe UI;
-}
-
-#topbar{
-  background:#111;
-  padding:15px;
-  font-size:22px;
-  text-align:center;
-  border-bottom:2px solid #00e5ff;
-}
-
-#toolbar{
-  display:flex;
-  gap:10px;
-  padding:10px;
-  background:#111;
-  border-bottom:1px solid #222;
-}
-
-button{
-  padding:8px 14px;
-  background:#1a1a1a;
-  color:white;
-  border:1px solid #333;
-  border-radius:8px;
-  cursor:pointer;
-}
-
-button:hover{
-  border-color:#00e5ff;
-  color:#00e5ff;
-}
-
-#main{
-  display:flex;
-  height:85vh;
-}
-
-#filePanel{
-  width:220px;
-  background:#111;
-  border-right:1px solid #222;
-  padding:10px;
-  overflow-y:auto;
-}
-
-.fileItem{
-  padding:6px;
-  cursor:pointer;
-  border-radius:6px;
-}
-
-.fileItem:hover{
-  background:#1a1a1a;
-}
-
-#editorContainer{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-}
-
-#output{
-  height:150px;
-  background:#000;
-  padding:10px;
-  overflow:auto;
-  color:#00ff88;
-}
-
-/* Auth Screen */
-#authScreen{
-  position:fixed;
-  inset:0;
-  background:#111;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  z-index:100;
-}
-
-#authBox{
-  background:#000;
-  padding:30px;
-  border-radius:20px;
-  text-align:center;
-  width:300px;
-}
-
-input{
-  width:90%;
-  padding:8px;
-  margin:8px 0;
-  background:#111;
-  border:1px solid #333;
-  color:white;
-}
+body{margin:0;background:#0f0f0f;color:white;font-family:Segoe UI;}
+#topbar{background:#111;padding:15px;font-size:22px;text-align:center;border-bottom:2px solid #00e5ff;}
+#toolbar{display:flex;gap:10px;padding:10px;background:#111;border-bottom:1px solid #222;}
+button{padding:8px 14px;background:#1a1a1a;color:white;border:1px solid #333;border-radius:8px;cursor:pointer;}
+button:hover{border-color:#00e5ff;color:#00e5ff;}
+#main{display:flex;height:85vh;}
+#filePanel{width:220px;background:#111;border-right:1px solid #222;padding:10px;overflow-y:auto;}
+.fileItem{padding:6px;cursor:pointer;border-radius:6px;}
+.fileItem:hover{background:#1a1a1a;}
+#editorContainer{flex:1;display:flex;flex-direction:column;}
+#output{height:150px;background:#000;padding:10px;overflow:auto;color:#00ff88;}
+#authScreen{position:fixed;inset:0;background:#111;display:flex;justify-content:center;align-items:center;z-index:100;}
+#authBox{background:#000;padding:30px;border-radius:20px;text-align:center;width:320px;}
+input{width:90%;padding:8px;margin:8px 0;background:#111;border:1px solid #333;color:white;}
 </style>
 </head>
 <body>
 
 <div id="authScreen">
   <div id="authBox">
-    <h2 id="authTitle">Login</h2>
+    <h2 id="authTitle">Login / Sign Up</h2>
     <input id="username" placeholder="Username">
     <input id="password" type="password" placeholder="Password">
     <br>
@@ -133,13 +46,12 @@ input{
 </div>
 
 <div id="topbar">WIDE Ultra 🚀</div>
-
 <div id="toolbar">
-<button onclick="runCode()">Run</button>
-<button onclick="saveFile()" id="saveBtn">Save</button>
-<button onclick="newFile()">New</button>
-<button onclick="copyCode()">Copy</button>
-<button onclick="logout()">Logout</button>
+  <button onclick="runCode()">Run</button>
+  <button onclick="saveFile()" id="saveBtn">Save</button>
+  <button onclick="newFile()">New</button>
+  <button onclick="copyCode()">Copy</button>
+  <button onclick="logout()">Logout</button>
 </div>
 
 <div id="main">
@@ -147,7 +59,6 @@ input{
     <h3>Your Files</h3>
     <div id="filesList"></div>
   </div>
-
   <div id="editorContainer">
     <textarea id="code">print("Welcome to WIDE Ultra!")</textarea>
     <div id="output"></div>
@@ -177,7 +88,7 @@ async function hash(text){
 async function signup(){
   let user=username.value.trim();
   let pass=password.value.trim();
-  if(!user||!pass)return;
+  if(!user||!pass) return;
 
   if(localStorage.getItem("user_"+user)){
     authMessage.innerText="User exists. Login instead.";
@@ -222,8 +133,9 @@ function startIDE(){
   authScreen.style.display="none";
   if(currentUser==="guest"){
     saveBtn.style.display="none";
-  }else{
+  } else {
     loadFiles();
+    checkAdmin(); // master check
   }
 }
 
@@ -286,6 +198,45 @@ function runCode(){
     }
   });
   Sk.misceval.asyncToPromise(()=>Sk.importMainWithBody("<stdin>",false,editor.getValue(),true));
+}
+
+/* ADMIN / MASTER ACCOUNT */
+
+function checkAdmin(){
+  if(currentUser === "Willspurs21_"){
+    let btn = document.createElement("button");
+    btn.innerText = "Show Other Users";
+    btn.onclick = showOtherUsers;
+    document.getElementById("toolbar").appendChild(btn);
+  }
+}
+
+function showOtherUsers(){
+  let users = [];
+  for(let i=0;i<localStorage.length;i++){
+    let key = localStorage.key(i);
+    if(key.startsWith("user_") && key !== "user_Willspurs21_"){
+      users.push(key.replace("user_",""));
+    }
+  }
+  
+  if(users.length === 0){
+    alert("No other users found.");
+    return;
+  }
+  
+  let info = "Other users and their files:\n";
+  users.forEach(u=>{
+    info += "- " + u + "\n";
+    for(let i=0;i<localStorage.length;i++){
+      let k = localStorage.key(i);
+      if(k.startsWith("file_"+u+"_")){
+        info += "   • " + k.replace("file_"+u+"_","") + "\n";
+      }
+    }
+  });
+  
+  alert(info);
 }
 </script>
 
