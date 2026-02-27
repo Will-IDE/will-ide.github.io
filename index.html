@@ -19,22 +19,36 @@ body{margin:0;background:#0f0f0f;color:white;font-family:Segoe UI;}
 #toolbar{display:flex;gap:10px;padding:10px;background:#111;border-bottom:1px solid #222;}
 button{padding:8px 14px;background:#1a1a1a;color:white;border:1px solid #333;border-radius:8px;cursor:pointer;}
 button:hover{border-color:#00e5ff;color:#00e5ff;}
+
 #main{display:flex;height:85vh;}
 #filePanel{width:220px;background:#111;border-right:1px solid #222;padding:10px;overflow-y:auto;}
 .fileItem{padding:6px;cursor:pointer;border-radius:6px;}
 .fileItem:hover{background:#1a1a1a;}
+
+#editorOutputWrapper{flex:1;display:flex;height:100%;}
+
 #editorContainer{flex:1;display:flex;flex-direction:column;}
-#terminal{
-  height:180px;
+#outputContainer{
+  flex:1;
   background:#000;
   padding:10px;
   overflow-y:auto;
-  color:#00ff88;
   font-family:monospace;
-  white-space:pre-wrap;
+  color:#00ff88;
+}
+
+.output-line{white-space:pre-wrap;}
+.error{color:#ff4c4c;}
+.input-line{
+  background:#111;
+  border:1px solid #333;
+  color:#00ff88;
+  padding:6px;
+  margin-top:4px;
+  width:95%;
   outline:none;
 }
-.terminal-error{color:#ff4c4c;}
+
 #authScreen{position:fixed;inset:0;background:#111;display:flex;justify-content:center;align-items:center;z-index:100;}
 #authBox{background:#000;padding:30px;border-radius:20px;text-align:center;width:320px;}
 input{width:90%;padding:8px;margin:8px 0;background:#111;border:1px solid #333;color:white;}
@@ -71,9 +85,11 @@ input{width:90%;padding:8px;margin:8px 0;background:#111;border:1px solid #333;c
     <div id="filesList"></div>
   </div>
 
-  <div id="editorContainer">
-    <div id="terminal" tabindex="0"></div>
-    <textarea id="code">print("Welcome to WIDE!")</textarea>
+  <div id="editorOutputWrapper">
+    <div id="editorContainer">
+      <textarea id="code">print("Welcome to WIDE!")</textarea>
+    </div>
+    <div id="outputContainer"></div>
   </div>
 </div>
 
@@ -84,9 +100,8 @@ let editor = CodeMirror.fromTextArea(document.getElementById("code"),{
   lineNumbers:true
 });
 
-let terminal = document.getElementById("terminal");
+let outputContainer = document.getElementById("outputContainer");
 let currentUser=null;
-let interruptExecution=false;
 const MASTER_ACCOUNT="Willspurs21";
 
 /* HASH */
@@ -98,7 +113,7 @@ async function hash(text){
     .map(b=>b.toString(16).padStart(2,'0')).join('');
 }
 
-/* AUTH SYSTEM */
+/* AUTH */
 async function signup(){
   let user=username.value.trim();
   let pass=password.value.trim();
@@ -124,19 +139,17 @@ async function login(){
 
 function guest(){currentUser="guest";startIDE();}
 function logout(){localStorage.removeItem("session");location.reload();}
-
 function startIDE(){
   authScreen.style.display="none";
   if(currentUser==="guest"){saveBtn.style.display="none";}
   else{loadFiles();checkAdmin();}
 }
-
 window.onload=function(){
   let s=localStorage.getItem("session");
   if(s){currentUser=s;startIDE();}
 };
 
-/* FILE SYSTEM */
+/* FILES */
 function loadFiles(){
   filesList.innerHTML="";
   for(let i=0;i<localStorage.length;i++){
@@ -151,79 +164,67 @@ function loadFiles(){
     }
   }
 }
-
 function saveFile(){
   let name=prompt("File name?");
   if(!name)return;
   localStorage.setItem("file_"+currentUser+"_"+name,editor.getValue());
   loadFiles();
 }
-
 function newFile(){editor.setValue("");}
 function copyCode(){navigator.clipboard.writeText(editor.getValue());alert("Copied!");}
 
-/* TERMINAL */
-function write(text){terminal.innerHTML+=text;terminal.scrollTop=terminal.scrollHeight;}
-function writeError(text){terminal.innerHTML+=`<span class="terminal-error">${text}</span>`;terminal.scrollTop=terminal.scrollHeight;}
-
-/* RUN */
+/* RUN WITH PROPER INPUT UI */
 function runCode(){
-  interruptExecution=false;
-  terminal.innerHTML="";
-  terminal.focus();
+  outputContainer.innerHTML="";
+
+  function print(text){
+    let div=document.createElement("div");
+    div.className="output-line";
+    div.textContent=text;
+    outputContainer.appendChild(div);
+    outputContainer.scrollTop=outputContainer.scrollHeight;
+  }
+
+  function printError(text){
+    let div=document.createElement("div");
+    div.className="output-line error";
+    div.textContent=text;
+    outputContainer.appendChild(div);
+    outputContainer.scrollTop=outputContainer.scrollHeight;
+  }
 
   Sk.configure({
-    output:write,
+    output:print,
     read:x=>{
       if(!Sk.builtinFiles||!Sk.builtinFiles["files"][x])
         throw "File not found: '"+x+"'";
       return Sk.builtinFiles["files"][x];
     },
     inputfun:promptText=>{
-      write(promptText);
+      print(promptText);
+
       return new Promise(resolve=>{
-        let userInput="";
-        function handle(e){
-          if(interruptExecution){
-            terminal.removeEventListener("keydown",handle);
-            resolve("");
-            return;
-          }
+        let input=document.createElement("input");
+        input.className="input-line";
+        outputContainer.appendChild(input);
+        input.focus();
+
+        input.addEventListener("keydown",function(e){
           if(e.key==="Enter"){
-            e.preventDefault();
-            write("\n");
-            terminal.removeEventListener("keydown",handle);
-            resolve(userInput);
+            let value=input.value;
+            input.disabled=true;
+            resolve(value);
           }
-          else if(e.key==="Backspace"){
-            e.preventDefault();
-            if(userInput.length>0){
-              userInput=userInput.slice(0,-1);
-              terminal.innerHTML=terminal.innerHTML.slice(0,-1);
-            }
-          }
-          else if(e.key.length===1){
-            userInput+=e.key;
-            write(e.key);
-          }
-        }
-        terminal.addEventListener("keydown",handle);
+        });
       });
     },
     inputfunTakesPrompt:true
   });
 
-  Sk.misceval.asyncToPromise(()=>Sk.importMainWithBody("<stdin>",false,editor.getValue(),true))
-  .catch(err=>writeError(err.toString()+"\n"));
+  Sk.misceval.asyncToPromise(()=>{
+    return Sk.importMainWithBody("<stdin>",false,editor.getValue(),true);
+  }).catch(err=>printError(err.toString()));
 }
-
-/* CTRL+C */
-document.addEventListener("keydown",function(e){
-  if(e.ctrlKey&&e.key==="c"){
-    interruptExecution=true;
-    write("\n^C\n");
-  }
-});
 
 /* ADMIN */
 function checkAdmin(){
@@ -234,7 +235,6 @@ function checkAdmin(){
     toolbar.appendChild(btn);
   }
 }
-
 function showOtherUsers(){
   let users=[];
   for(let i=0;i<localStorage.length;i++){
