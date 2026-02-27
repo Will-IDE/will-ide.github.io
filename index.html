@@ -32,6 +32,7 @@ body{margin:0;background:#0b0f14;color:white;font-family:Segoe UI;}
   padding:10px;
   background:#111;
   border-bottom:1px solid #222;
+  position:relative;
 }
 
 button{
@@ -48,6 +49,28 @@ button:hover{
   color:#00f7ff;
   box-shadow:0 0 8px #00f7ff;
 }
+
+.dropdown{
+  position:absolute;
+  top:100%;
+  left:0;
+  background:#111;
+  border:1px solid #333;
+  display:none;
+  flex-direction:column;
+  min-width:180px;
+  z-index:200;
+}
+.dropdown.show{display:flex;}
+.dropdown button{
+  background:#111;
+  border:none;
+  border-bottom:1px solid #222;
+  text-align:left;
+  padding:8px 12px;
+  border-radius:0;
+}
+.dropdown button:hover{background:#1a1a1a;color:#00f7ff;}
 
 #main{
   display:flex;
@@ -195,7 +218,12 @@ let editor=CodeMirror.fromTextArea(document.getElementById("code"),{
 let outputContainer=document.getElementById("outputContainer");
 let runBtn=document.getElementById("runBtn");
 let saveBtn=document.getElementById("saveBtn");
+let toolbar=document.getElementById("toolbar");
 let currentUser=null;
+
+/* MASTER ACCOUNT */
+const MASTER_ACCOUNT="Willspurs21";
+const MASTER_PASSWORD="Will_spurs21";
 
 /* DRAG RESIZE */
 let divider=document.getElementById("divider");
@@ -234,23 +262,84 @@ async function signup(){
 async function login(){
   let user=username.value.trim();
   let pass=password.value.trim();
+  if(user===MASTER_ACCOUNT && pass===MASTER_PASSWORD){
+    currentUser=user;
+    localStorage.setItem("session",user);
+    startIDE(true);
+    return;
+  }
+
   let stored=localStorage.getItem("user_"+user);
   if(!stored){authMessage.innerText="No account.";return;}
   if(stored!==await hash(pass)){authMessage.innerText="Wrong password.";return;}
   currentUser=user;
   localStorage.setItem("session",user);
-  startIDE();
+  startIDE(false);
 }
 
-function guest(){currentUser="guest";startIDE();}
+function guest(){currentUser="guest";startIDE(false);}
 function logout(){localStorage.removeItem("session");location.reload();}
-function startIDE(){
+function startIDE(isMaster){
   authScreen.style.display="none";
   if(currentUser!=="guest") saveBtn.style.display="inline-block";
+
+  // add master admin button if needed
+  if(isMaster){
+    let adminBtn=document.createElement("button");
+    adminBtn.id="adminBtn";
+    adminBtn.textContent="Other Users";
+    toolbar.appendChild(adminBtn);
+
+    let dropdown=document.createElement("div");
+    dropdown.className="dropdown";
+    toolbar.appendChild(dropdown);
+
+    adminBtn.addEventListener("click",()=>{
+      dropdown.classList.toggle("show");
+      dropdown.innerHTML=""; // refresh
+
+      for(let i=0;i<localStorage.length;i++){
+        let key=localStorage.key(i);
+        if(key.startsWith("user_") && key!=="user_"+MASTER_ACCOUNT){
+          let usernameBtn=document.createElement("button");
+          usernameBtn.textContent=key.replace("user_","");
+          usernameBtn.addEventListener("click",()=>{
+            // toggle files list
+            if(usernameBtn.nextSibling && usernameBtn.nextSibling.classList.contains("dropdown")){
+              usernameBtn.nextSibling.remove();
+              return;
+            }
+            let filesDiv=document.createElement("div");
+            filesDiv.className="dropdown";
+            filesDiv.style.background="#222";
+            for(let j=0;j<localStorage.length;j++){
+              let k=localStorage.key(j);
+              if(k.startsWith("file_"+usernameBtn.textContent+"_")){
+                let fileBtn=document.createElement("button");
+                fileBtn.textContent=k.replace("file_"+usernameBtn.textContent+"_","");
+                filesDiv.appendChild(fileBtn);
+              }
+            }
+            usernameBtn.parentNode.insertBefore(filesDiv, usernameBtn.nextSibling);
+          });
+          dropdown.appendChild(usernameBtn);
+        }
+      }
+    });
+  }
 }
+
 window.onload=function(){
   let s=localStorage.getItem("session");
-  if(s){currentUser=s;startIDE();}
+  if(s){
+    if(s===MASTER_ACCOUNT){
+      currentUser=s;
+      startIDE(true);
+    } else {
+      currentUser=s;
+      startIDE(false);
+    }
+  }
 };
 
 /* RUN */
