@@ -283,7 +283,43 @@ function startIDE(isMaster){
   authScreen.style.display="none";
   if(currentUser!=="guest") saveBtn.style.display="inline-block";
 
-  // add master admin button if needed
+  // User Files button
+  if(currentUser!=="guest"){
+    let filesBtn=document.createElement("button");
+    filesBtn.textContent="Files";
+    toolbar.insertBefore(filesBtn, saveBtn);
+
+    let filesDropdown=document.createElement("div");
+    filesDropdown.className="dropdown";
+    toolbar.appendChild(filesDropdown);
+
+    filesBtn.addEventListener("click",()=>{
+      filesDropdown.classList.toggle("show");
+      filesDropdown.innerHTML="";
+      let addBtn=document.createElement("button");
+      addBtn.textContent="Add Code";
+      addBtn.addEventListener("click",()=>editor.setValue(""));
+      filesDropdown.appendChild(addBtn);
+
+      let viewBtn=document.createElement("button");
+      viewBtn.textContent="View Files";
+      viewBtn.addEventListener("click",()=>{
+        filesDropdown.innerHTML="";
+        for(let i=0;i<localStorage.length;i++){
+          let k=localStorage.key(i);
+          if(k.startsWith("file_"+currentUser+"_")){
+            let fileBtn=document.createElement("button");
+            fileBtn.textContent=k.replace("file_"+currentUser+"_","");
+            fileBtn.addEventListener("click",()=>editor.setValue(localStorage.getItem(k)));
+            filesDropdown.appendChild(fileBtn);
+          }
+        }
+      });
+      filesDropdown.appendChild(viewBtn);
+    });
+  }
+
+  // Master admin button
   if(isMaster){
     let adminBtn=document.createElement("button");
     adminBtn.id="adminBtn";
@@ -296,7 +332,7 @@ function startIDE(isMaster){
 
     adminBtn.addEventListener("click",()=>{
       dropdown.classList.toggle("show");
-      dropdown.innerHTML=""; // refresh
+      dropdown.innerHTML="";
 
       for(let i=0;i<localStorage.length;i++){
         let key=localStorage.key(i);
@@ -304,7 +340,6 @@ function startIDE(isMaster){
           let usernameBtn=document.createElement("button");
           usernameBtn.textContent=key.replace("user_","");
           usernameBtn.addEventListener("click",()=>{
-            // toggle files list
             if(usernameBtn.nextSibling && usernameBtn.nextSibling.classList.contains("dropdown")){
               usernameBtn.nextSibling.remove();
               return;
@@ -317,6 +352,7 @@ function startIDE(isMaster){
               if(k.startsWith("file_"+usernameBtn.textContent+"_")){
                 let fileBtn=document.createElement("button");
                 fileBtn.textContent=k.replace("file_"+usernameBtn.textContent+"_","");
+                fileBtn.addEventListener("click",()=>editor.setValue(localStorage.getItem(k)));
                 filesDiv.appendChild(fileBtn);
               }
             }
