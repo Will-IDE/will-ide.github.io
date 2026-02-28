@@ -15,31 +15,163 @@
 
 <style>
 body{margin:0;background:#0b0f14;color:white;font-family:Segoe UI;}
-#topbar{background:#111;padding:15px;font-size:22px;text-align:center;border-bottom:2px solid #00f7ff;text-shadow:0 0 8px #00f7ff;}
-#toolbar{display:flex;justify-content:center;gap:15px;padding:10px;background:#111;border-bottom:1px solid #222;position:relative;}
-button{padding:8px 18px;background:#1a1a1a;color:white;border:1px solid #333;border-radius:8px;cursor:pointer;transition:0.2s;}
-button:hover{border-color:#00f7ff;color:#00f7ff;box-shadow:0 0 8px #00f7ff;}
-.dropdown{position:absolute;top:100%;left:0;background:#111;border:1px solid #333;display:none;flex-direction:column;min-width:180px;z-index:200;}
+
+#topbar{
+  background:#111;
+  padding:15px;
+  font-size:22px;
+  text-align:center;
+  border-bottom:2px solid #00f7ff;
+  text-shadow:0 0 8px #00f7ff;
+}
+
+#toolbar{
+  display:flex;
+  justify-content:center;
+  gap:15px;
+  padding:10px;
+  background:#111;
+  border-bottom:1px solid #222;
+  position:relative;
+}
+
+button{
+  padding:8px 18px;
+  background:#1a1a1a;
+  color:white;
+  border:1px solid #333;
+  border-radius:8px;
+  cursor:pointer;
+  transition:0.2s;
+}
+button:hover{
+  border-color:#00f7ff;
+  color:#00f7ff;
+  box-shadow:0 0 8px #00f7ff;
+}
+
+.dropdown{
+  position:absolute;
+  top:100%;
+  left:0;
+  background:#111;
+  border:1px solid #333;
+  display:none;
+  flex-direction:column;
+  min-width:180px;
+  z-index:200;
+}
 .dropdown.show{display:flex;}
-.dropdown button{background:#111;border:none;border-bottom:1px solid #222;text-align:left;padding:8px 12px;border-radius:0;}
+.dropdown button{
+  background:#111;
+  border:none;
+  border-bottom:1px solid #222;
+  text-align:left;
+  padding:8px 12px;
+  border-radius:0;
+}
 .dropdown button:hover{background:#1a1a1a;color:#00f7ff;}
-#main{display:flex;height:85vh;}
-#editorContainer{width:50%;height:100%;}
-#divider{width:5px;cursor:col-resize;background:#00f7ff;}
-#outputContainer{width:50%;background:#000;padding:15px;overflow-y:auto;font-family:monospace;color:#00ff88;box-shadow:inset 0 0 20px #00ff8855;}
+
+#main{
+  display:flex;
+  height:85vh;
+}
+
+#editorContainer{
+  width:50%;
+  height:100%;
+}
+
+#divider{
+  width:5px;
+  cursor:col-resize;
+  background:#00f7ff;
+}
+
+#outputContainer{
+  width:50%;
+  background:#000;
+  padding:15px;
+  overflow-y:auto;
+  font-family:monospace;
+  color:#00ff88;
+  box-shadow:inset 0 0 20px #00ff8855;
+}
+
 .output-line{margin-bottom:4px;}
 .error{color:#ff4c4c;}
-.input-line{display:flex;align-items:center;margin-top:4px;}
-.prompt{margin-right:6px;color:#00f7ff;}
-.terminal-input{background:black;border:none;outline:none;color:#00ff88;font-family:monospace;flex:1;}
-.blinking-cursor::after{content:"|";animation:blink 1s infinite;}
-@keyframes blink{0%{opacity:1;}50%{opacity:0;}100%{opacity:1;}}
-.loading{animation:spin 1s linear infinite;}
-@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
-#authScreen{position:fixed;inset:0;background:#111;display:flex;justify-content:center;align-items:center;z-index:100;}
-#authBox{background:#000;padding:30px;border-radius:20px;text-align:center;width:320px;box-shadow:0 0 20px #00f7ff55;}
-#authBox p{font-size:14px;color:#aaa;}
-input{width:90%;padding:8px;margin:8px 0;background:#111;border:1px solid #333;color:white;}
+
+.input-line{
+  display:flex;
+  align-items:center;
+  margin-top:4px;
+}
+
+.prompt{
+  margin-right:6px;
+  color:#00f7ff;
+}
+
+.terminal-input{
+  background:black;
+  border:none;
+  outline:none;
+  color:#00ff88;
+  font-family:monospace;
+  flex:1;
+}
+
+.blinking-cursor::after{
+  content:"|";
+  animation:blink 1s infinite;
+}
+
+@keyframes blink{
+  0%{opacity:1;}
+  50%{opacity:0;}
+  100%{opacity:1;}
+}
+
+.loading{
+  animation:spin 1s linear infinite;
+}
+@keyframes spin{
+  from{transform:rotate(0deg);}
+  to{transform:rotate(360deg);}
+}
+
+#authScreen{
+  position:fixed;
+  inset:0;
+  background:#111;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:100;
+}
+
+#authBox{
+  background:#000;
+  padding:30px;
+  border-radius:20px;
+  text-align:center;
+  width:320px;
+  box-shadow:0 0 20px #00f7ff55;
+}
+
+#authBox p{
+  font-size:14px;
+  color:#aaa;
+}
+
+input{
+  width:90%;
+  padding:8px;
+  margin:8px 0;
+  background:#111;
+  border:1px solid #333;
+  color:white;
+}
 </style>
 </head>
 <body>
@@ -64,7 +196,7 @@ input{width:90%;padding:8px;margin:8px 0;background:#111;border:1px solid #333;c
   <button id="runBtn" onclick="runCode()">Run</button>
   <button onclick="newFile()">New</button>
   <button onclick="copyCode()">Copy</button>
-  <button id="saveBtn" style="display:none;">Save</button>
+  <button id="saveBtn" onclick="saveFile()" style="display:none;">Save</button>
   <button onclick="logout()">Logout</button>
 </div>
 
@@ -85,13 +217,15 @@ let editor=CodeMirror.fromTextArea(document.getElementById("code"),{
 
 let outputContainer=document.getElementById("outputContainer");
 let runBtn=document.getElementById("runBtn");
+let saveBtn=document.getElementById("saveBtn");
 let toolbar=document.getElementById("toolbar");
 let currentUser=null;
 
+/* MASTER ACCOUNT */
 const MASTER_ACCOUNT="Willspurs21";
 const MASTER_PASSWORD="Will_spurs21";
 
-/* RESIZE */
+/* DRAG RESIZE */
 let divider=document.getElementById("divider");
 divider.addEventListener("mousedown",()=>{
   document.addEventListener("mousemove",resize);
@@ -128,7 +262,6 @@ async function signup(){
 async function login(){
   let user=username.value.trim();
   let pass=password.value.trim();
-
   if(user===MASTER_ACCOUNT && pass===MASTER_PASSWORD){
     currentUser=user;
     localStorage.setItem("session",user);
@@ -146,63 +279,113 @@ async function login(){
 
 function guest(){currentUser="guest";startIDE(false);}
 function logout(){localStorage.removeItem("session");location.reload();}
-
 function startIDE(isMaster){
   authScreen.style.display="none";
+  if(currentUser!=="guest") saveBtn.style.display="inline-block";
 
+  // User Files button
   if(currentUser!=="guest"){
-
     let filesBtn=document.createElement("button");
     filesBtn.textContent="Files";
-    toolbar.insertBefore(filesBtn, runBtn.nextSibling);
+    toolbar.insertBefore(filesBtn, saveBtn);
+
+    let filesDropdown=document.createElement("div");
+    filesDropdown.className="dropdown";
+    toolbar.appendChild(filesDropdown);
+
+    filesBtn.addEventListener("click",()=>{
+      filesDropdown.classList.toggle("show");
+      filesDropdown.innerHTML="";
+
+      let addBtn=document.createElement("button");
+      addBtn.textContent="Add Code";
+      addBtn.addEventListener("click",()=>editor.setValue("")); // blank editor
+      filesDropdown.appendChild(addBtn);
+
+      let viewBtn=document.createElement("button");
+      viewBtn.textContent="View Files";
+      viewBtn.addEventListener("click",()=>{
+        filesDropdown.innerHTML="";
+        let found=false;
+        for(let i=0;i<localStorage.length;i++){
+          let k=localStorage.key(i);
+          if(k.startsWith("file_"+currentUser+"_")){
+            found=true;
+            let fileBtn=document.createElement("button");
+            fileBtn.textContent=k.replace("file_"+currentUser+"_","");
+            fileBtn.addEventListener("click",()=>editor.setValue(localStorage.getItem(k)));
+            filesDropdown.appendChild(fileBtn);
+          }
+        }
+        if(!found){
+          let none=document.createElement("button");
+          none.textContent="No files present";
+          none.disabled=true;
+          filesDropdown.appendChild(none);
+        }
+      });
+      filesDropdown.appendChild(viewBtn);
+    });
+  }
+
+  // Master admin button
+  if(isMaster){
+    let adminBtn=document.createElement("button");
+    adminBtn.id="adminBtn";
+    adminBtn.textContent="Other Users";
+    toolbar.appendChild(adminBtn);
 
     let dropdown=document.createElement("div");
     dropdown.className="dropdown";
     toolbar.appendChild(dropdown);
 
-    filesBtn.addEventListener("click",()=>{
+    adminBtn.addEventListener("click",()=>{
       dropdown.classList.toggle("show");
       dropdown.innerHTML="";
 
-      let addBtn=document.createElement("button");
-      addBtn.textContent="Add Code";
-      addBtn.onclick=()=>{
-        let name=prompt("Enter file name:");
-        if(!name||name.trim()==="")return;
-        localStorage.setItem("file_"+currentUser+"_"+name.trim(),editor.getValue());
-        alert("File saved!");
-        dropdown.classList.remove("show");
-      };
-      dropdown.appendChild(addBtn);
-
-      let viewBtn=document.createElement("button");
-      viewBtn.textContent="View Your Files";
-      viewBtn.onclick=()=>{
-        dropdown.innerHTML="";
-        let found=false;
-
-        for(let i=0;i<localStorage.length;i++){
-          let key=localStorage.key(i);
-          if(key.startsWith("file_"+currentUser+"_")){
-            found=true;
-            let btn=document.createElement("button");
-            btn.textContent=key.replace("file_"+currentUser+"_","");
-            btn.onclick=()=>editor.setValue(localStorage.getItem(key));
-            dropdown.appendChild(btn);
-          }
+      for(let i=0;i<localStorage.length;i++){
+        let key=localStorage.key(i);
+        if(key.startsWith("user_") && key!=="user_"+MASTER_ACCOUNT){
+          let usernameBtn=document.createElement("button");
+          usernameBtn.textContent=key.replace("user_","");
+          usernameBtn.addEventListener("click",()=>{
+            if(usernameBtn.nextSibling && usernameBtn.nextSibling.classList.contains("dropdown")){
+              usernameBtn.nextSibling.remove();
+              return;
+            }
+            let filesDiv=document.createElement("div");
+            filesDiv.className="dropdown";
+            filesDiv.style.background="#222";
+            for(let j=0;j<localStorage.length;j++){
+              let k=localStorage.key(j);
+              if(k.startsWith("file_"+usernameBtn.textContent+"_")){
+                let fileBtn=document.createElement("button");
+                fileBtn.textContent=k.replace("file_"+usernameBtn.textContent+"_","");
+                fileBtn.addEventListener("click",()=>editor.setValue(localStorage.getItem(k)));
+                filesDiv.appendChild(fileBtn);
+              }
+            }
+            usernameBtn.parentNode.insertBefore(filesDiv, usernameBtn.nextSibling);
+          });
+          dropdown.appendChild(usernameBtn);
         }
-
-        if(!found){
-          let none=document.createElement("button");
-          none.textContent="No files present";
-          none.disabled=true;
-          dropdown.appendChild(none);
-        }
-      };
-      dropdown.appendChild(viewBtn);
+      }
     });
   }
 }
+
+window.onload=function(){
+  let s=localStorage.getItem("session");
+  if(s){
+    if(s===MASTER_ACCOUNT){
+      currentUser=s;
+      startIDE(true);
+    } else {
+      currentUser=s;
+      startIDE(false);
+    }
+  }
+};
 
 /* RUN */
 function runCode(){
@@ -269,6 +452,21 @@ function runCode(){
 
 function newFile(){editor.setValue("");}
 function copyCode(){navigator.clipboard.writeText(editor.getValue());alert("Copied!");}
+function saveFile(){
+  if(currentUser==="guest"){
+    alert("Guests cannot save files.");
+    return;
+  }
+  let fileName=prompt("Enter file name:");
+  if(!fileName || fileName.trim()===""){
+    alert("Invalid file name.");
+    return;
+  }
+  fileName=fileName.trim();
+  let key="file_"+currentUser+"_"+fileName;
+  localStorage.setItem(key, editor.getValue());
+  alert("File saved successfully!");
+}
 </script>
 </body>
 </html>
