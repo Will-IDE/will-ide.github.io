@@ -1,614 +1,284 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>WIDE - Browser Python IDE</title>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
-
+<title>Python IDE</title>
 <style>
-body{margin:0;background:#0b0f14;color:white;font-family:Segoe UI;}
-
-#topbar{
-  background:#111;
-  padding:15px;
-  font-size:22px;
-  text-align:center;
-  border-bottom:2px solid #00f7ff;
-  text-shadow:0 0 8px #00f7ff;
-}
-
-#toolbar{
-  display:flex;
-  justify-content:center;
-  gap:15px;
-  padding:10px;
-  background:#111;
-  border-bottom:1px solid #222;
-  position:relative;
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0f172a;
+  color:white;
 }
 
 button{
-  padding:8px 18px;
-  background:#1a1a1a;
-  color:white;
-  border:1px solid #333;
+  padding:10px 20px;
+  margin:5px;
+  border:none;
   border-radius:8px;
   cursor:pointer;
-  transition:0.2s;
-}
-button:hover{
-  border-color:#00f7ff;
-  color:#00f7ff;
-  box-shadow:0 0 8px #00f7ff;
+  font-weight:bold;
 }
 
-.dropdown{
-  position:absolute;
-  top:100%;
-  left:0;
-  background:#111;
-  border:1px solid #333;
-  display:none;
-  flex-direction:column;
-  min-width:180px;
-  z-index:200;
+#authScreen{
+  text-align:center;
+  margin-top:100px;
 }
-.dropdown.show{display:flex;}
-.dropdown button{
-  background:#111;
+
+input{
+  padding:10px;
+  margin:5px;
+  border-radius:5px;
   border:none;
-  border-bottom:1px solid #222;
-  text-align:left;
-  padding:8px 12px;
-  border-radius:0;
 }
-.dropdown button:hover{background:#1a1a1a;color:#00f7ff;}
 
-#main{
+#topBar{
+  background:#1e293b;
+  padding:10px;
+  display:flex;
+  align-items:center;
+}
+
+#editorContainer{
   display:flex;
   height:85vh;
 }
 
-#editorContainer{
+#editor{
   width:50%;
-  height:100%;
-}
-
-#divider{
-  width:5px;
-  cursor:col-resize;
-  background:#00f7ff;
-}
-
-#outputContainer{
-  width:50%;
-  background:#000;
-  padding:15px;
-  overflow-y:auto;
+  padding:10px;
   font-family:monospace;
-  color:#00ff88;
-  box-shadow:inset 0 0 20px #00ff8855;
+  font-size:15px;
 }
 
-.output-line{margin-bottom:4px;}
-.error{color:#ff4c4c;}
-
-.input-line{
-  display:flex;
-  align-items:center;
-  margin-top:4px;
-}
-
-.prompt{
-  margin-right:6px;
-  color:#00f7ff;
-}
-
-.terminal-input{
+#output{
+  width:50%;
   background:black;
-  border:none;
-  outline:none;
-  color:#00ff88;
-  font-family:monospace;
-  flex:1;
+  color:#00ff00;
+  padding:10px;
+  overflow:auto;
 }
 
-.blinking-cursor::after{
-  content:"|";
-  animation:blink 1s infinite;
-}
-
-@keyframes blink{
-  0%{opacity:1;}
-  50%{opacity:0;}
-  100%{opacity:1;}
-}
-
-.loading{
-  animation:spin 1s linear infinite;
-}
-@keyframes spin{
-  from{transform:rotate(0deg);}
-  to{transform:rotate(360deg);}
-}
-
-#authScreen{
-  position:fixed;
-  inset:0;
-  background:#111;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  z-index:100;
-}
-
-#authBox{
-  background:#000;
-  padding:30px;
-  border-radius:20px;
-  text-align:center;
-  width:320px;
-  box-shadow:0 0 20px #00f7ff55;
-}
-
-#authBox p{
-  font-size:14px;
-  color:#aaa;
-}
-
-input{
-  width:90%;
-  padding:8px;
-  margin:8px 0;
-  background:#111;
-  border:1px solid #333;
-  color:white;
-}
-
-#learnPython{
+#learnPage{
   display:none;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
+  padding:40px;
   text-align:center;
-  padding:50px;
-  height:100%;
-  color:#00ff88;
-  font-family:Segoe UI, monospace;
-}
-
-#learnPython h1{
-  font-size:40px;
-  color:#00f7ff;
-  text-shadow:0 0 10px #00f7ff;
-}
-
-#learnPython button{
-  margin-top:20px;
-  font-size:18px;
-}
-
-#learnToolbar{
-  margin:10px 0;
-  display:flex;
-  gap:10px;
 }
 
 #learnContent{
-  width:80%;
-  min-height:200px;
-  background:#111;
-  border:1px solid #00f7ff;
+  margin-top:30px;
+  background:white;
+  color:black;
   padding:20px;
-  color:#00ff88;
-  margin:20px auto;
+  border-radius:10px;
+  min-height:200px;
   text-align:left;
+}
+
+.toolbar{
+  display:none;
+  margin-bottom:15px;
+  flex-wrap:wrap;
+  gap:5px;
+}
+
+.flashy{
+  font-size:40px;
+  font-weight:bold;
+  background:linear-gradient(90deg,#00f,#0ff,#f0f);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
 }
 </style>
 </head>
+
 <body>
 
 <div id="authScreen">
-  <div id="authBox">
-    <h2>Login / Sign Up</h2>
-    <p>You can only access and save files if you log in or sign up.</p>
-    <input id="username" placeholder="Username">
-    <input id="password" type="password" placeholder="Password">
-    <br>
-    <button onclick="login()">Login</button>
-    <button onclick="signup()">Sign Up</button>
-    <button onclick="guest()">Use as Guest</button>
-    <p id="authMessage"></p>
-  </div>
+  <h1>Login System</h1>
+  <input id="username" placeholder="Username"><br>
+  <input id="password" type="password" placeholder="Password"><br>
+  <button onclick="login()">Login</button>
+  <button onclick="signup()">Sign Up</button>
+  <button onclick="guest()">Use as Guest</button>
 </div>
 
-<div id="topbar">WIDE - Python IDE</div>
-
-<div id="toolbar">
-  <button id="runBtn" onclick="runCode()">Run</button>
-  <button onclick="newFile()">New</button>
-  <button onclick="copyCode()">Copy</button>
-  <button id="saveBtn" onclick="saveFile()" style="display:none;">Save</button>
-  <button id="learnBtn" onclick="openLearnPython()" style="display:none;">LEARN PYTHON</button>
+<div id="topBar" style="display:none;">
+  <button onclick="runCode()">Run</button>
+  <button onclick="saveFile()">Save</button>
+  <button onclick="showFiles()">Files</button>
+  <button onclick="openLearn()">LEARN PYTHON</button>
   <button onclick="logout()">Logout</button>
+  <span id="userLabel" style="margin-left:auto;"></span>
 </div>
 
-<div id="main">
-  <div id="editorContainer">
-    <textarea id="code">print("Welcome to WIDE!")</textarea>
-  </div>
-  <div id="divider"></div>
-  <div id="outputContainer"></div>
+<div id="editorContainer" style="display:none;">
+  <textarea id="editor">print("Hello World")</textarea>
+  <div id="output"></div>
 </div>
 
-<div id="learnPython">
-  <h1>WELCOME - Follow the steps to start your coding journey</h1>
-  <div id="learnToolbar" style="display:none;">
-    <button onclick="formatText('bold')">Bold</button>
-    <button onclick="formatText('italic')">Italic</button>
-    <button onclick="formatText('underline')">Underline</button>
-    <button onclick="formatText('highlight')">Highlight</button>
-    <button onclick="addLink()">Add Link</button>
-    <button onclick="addBox()">Add Box</button>
+<div id="learnPage">
+  <div class="flashy">WELCOME</div>
+  <h2>Follow the steps to start your coding journey 🚀</h2>
+
+  <div class="toolbar" id="learnToolbar">
+    <button onclick="format('bold')">Bold</button>
+    <button onclick="format('underline')">Underline</button>
+    <button onclick="highlightText()">Highlight</button>
+    <button onclick="insertBox()">Box</button>
+    <button onclick="insertLink()">Add Link</button>
+    <button onclick="saveLearn()">Save Page</button>
   </div>
-  <div contenteditable="true" id="learnContent"></div>
+
+  <div id="learnContent" contenteditable="true">
+    Start editing your Python lessons here...
+  </div>
+
+  <br>
   <button onclick="returnToEditor()">Return to Code Editor</button>
-  <button id="saveLearnBtn" style="display:none;">Save Learn Content</button>
 </div>
 
 <script>
-let editor=CodeMirror.fromTextArea(document.getElementById("code"),{
-  mode:"python",
-  theme:"dracula",
-  lineNumbers:true
-});
+const MASTER_ACCOUNT = "Willspurs21";
+const MASTER_PASSWORD = "Will_spurs21";
 
-let outputContainer=document.getElementById("outputContainer");
-let runBtn=document.getElementById("runBtn");
-let saveBtn=document.getElementById("saveBtn");
-let learnBtn=document.getElementById("learnBtn");
-let toolbar=document.getElementById("toolbar");
-let currentUser=null;
+let currentUser = null;
 
-/* MASTER ACCOUNT */
-const MASTER_ACCOUNT="Willspurs21";
-const MASTER_PASSWORD="Will_spurs21";
+function signup(){
+  let u = username.value;
+  let p = password.value;
+  if(!u || !p) return alert("Fill fields");
 
-/* DRAG RESIZE */
-let divider=document.getElementById("divider");
-divider.addEventListener("mousedown",()=>{
-  document.addEventListener("mousemove",resize);
-  document.addEventListener("mouseup",()=>document.removeEventListener("mousemove",resize));
-});
-function resize(e){
-  let percent=e.clientX/window.innerWidth*100;
-  document.getElementById("editorContainer").style.width=percent+"%";
-  outputContainer.style.width=(100-percent)+"%";
+  localStorage.setItem("user_"+u, p);
+  alert("Account created");
 }
 
-/* HASH */
-async function hash(text){
-  const encoder=new TextEncoder();
-  const data=encoder.encode(text);
-  const hashBuffer=await crypto.subtle.digest("SHA-256",data);
-  return Array.from(new Uint8Array(hashBuffer))
-    .map(b=>b.toString(16).padStart(2,'0')).join('');
-}
+function login(){
+  let u = username.value;
+  let p = password.value;
 
-/* AUTH FUNCTIONS */
-async function signup(){
-  let user = username.value.trim();
-  let pass = password.value.trim();
-  if(!user || !pass) return;
-  if(localStorage.getItem("user_"+user)){
-    authMessage.innerText="User exists.";
-    return;
-  }
-  localStorage.setItem("user_"+user, await hash(pass));
-  authMessage.innerText="Signup successful!";
-}
-
-async function login(){
-  let user = username.value.trim();
-  let pass = password.value.trim();
-
-  if(user === MASTER_ACCOUNT && pass === MASTER_PASSWORD){
-    currentUser = user;
-    localStorage.setItem("session", user);
+  if(u===MASTER_ACCOUNT && p===MASTER_PASSWORD){
+    currentUser = u;
     startIDE(true);
     return;
   }
 
-  let stored = localStorage.getItem("user_" + user);
-  if(!stored){ authMessage.innerText="No account."; return; }
-  if(stored !== await hash(pass)){ authMessage.innerText="Wrong password."; return; }
+  let stored = localStorage.getItem("user_"+u);
+  if(stored && stored===p){
+    currentUser = u;
+    startIDE(false);
+  }else{
+    alert("Invalid login");
+  }
+}
 
-  currentUser = user;
-  localStorage.setItem("session", user);
+function guest(){
+  currentUser = "guest";
   startIDE(false);
 }
 
-function guest(){ currentUser="guest"; startIDE(false); }
-function logout(){ localStorage.removeItem("session"); location.reload(); }
+function logout(){
+  location.reload();
+}
 
 function startIDE(isMaster){
   authScreen.style.display="none";
-  learnBtn.style.display="inline-block";
-  if(currentUser!=="guest") saveBtn.style.display="inline-block";
-
-  // Show saved Learn Python page content
-  let savedContent = localStorage.getItem("learnPythonContent");
-  if(savedContent) document.getElementById("learnContent").innerHTML = savedContent;
+  topBar.style.display="flex";
+  editorContainer.style.display="flex";
+  userLabel.innerText="Logged in as: "+currentUser;
 
   if(currentUser===MASTER_ACCOUNT){
     document.getElementById("learnToolbar").style.display="flex";
-    document.getElementById("saveLearnBtn").style.display="inline-block";
   }
 
-  // MASTER ACCOUNT - VIEW OTHER USERS
-if(currentUser === MASTER_ACCOUNT){
-
-  let adminBtn = document.createElement("button");
-  adminBtn.textContent = "Other Users";
-  toolbar.appendChild(adminBtn);
-
-  let dropdown = document.createElement("div");
-  dropdown.className = "dropdown";
-  toolbar.appendChild(dropdown);
-
-  adminBtn.addEventListener("click", () => {
-    dropdown.classList.toggle("show");
-    dropdown.innerHTML = "";
-
-    for(let i=0;i<localStorage.length;i++){
-      let key = localStorage.key(i);
-
-      if(key.startsWith("user_") && key !== "user_" + MASTER_ACCOUNT){
-
-        let username = key.replace("user_","");
-
-        let userBtn = document.createElement("button");
-        userBtn.textContent = username;
-
-        userBtn.addEventListener("click", () => {
-
-          // Remove existing file list if open
-          if(userBtn.nextSibling && userBtn.nextSibling.classList.contains("dropdown")){
-            userBtn.nextSibling.remove();
-            return;
-          }
-
-          let filesDiv = document.createElement("div");
-          filesDiv.className = "dropdown";
-          filesDiv.style.background = "#222";
-
-          let hasFiles = false;
-
-          for(let j=0;j<localStorage.length;j++){
-            let k = localStorage.key(j);
-
-            if(k.startsWith("file_" + username + "_")){
-              let fileBtn = document.createElement("button");
-              fileBtn.textContent = k.replace("file_" + username + "_","");
-              fileBtn.addEventListener("click", () => {
-                editor.setValue(localStorage.getItem(k));
-              });
-              filesDiv.appendChild(fileBtn);
-              hasFiles = true;
-            }
-          }
-
-          if(!hasFiles){
-            let none = document.createElement("button");
-            none.textContent = "No files";
-            filesDiv.appendChild(none);
-          }
-
-          userBtn.parentNode.insertBefore(filesDiv, userBtn.nextSibling);
-        });
-
-        dropdown.appendChild(userBtn);
-      }
-    }
-  });
-}
-  // Files button
-  if(currentUser!=="guest"){
-    let filesBtn=document.createElement("button");
-    filesBtn.textContent="Files";
-    toolbar.insertBefore(filesBtn, saveBtn);
-
-    let filesDropdown=document.createElement("div");
-    filesDropdown.className="dropdown";
-    toolbar.appendChild(filesDropdown);
-
-    filesBtn.addEventListener("click",()=>{
-      filesDropdown.classList.toggle("show");
-      filesDropdown.innerHTML="";
-
-      let addBtn=document.createElement("button");
-      addBtn.textContent="Add Code";
-      addBtn.addEventListener("click",()=>{
-        editor.setValue("");
-        let fileName=prompt("Enter file name:");
-        if(fileName){
-          localStorage.setItem("file_"+currentUser+"_"+fileName, editor.getValue());
-          alert("File created. You can now edit and save it.");
-        }
-      });
-      filesDropdown.appendChild(addBtn);
-
-      let viewBtn=document.createElement("button");
-      viewBtn.textContent="View Files";
-      viewBtn.addEventListener("click",()=>{
-        filesDropdown.innerHTML="";
-        let hasFiles=false;
-        for(let i=0;i<localStorage.length;i++){
-          let k=localStorage.key(i);
-          if(k.startsWith("file_"+currentUser+"_")){
-            let fileBtn=document.createElement("button");
-            fileBtn.textContent=k.replace("file_"+currentUser+"_","");
-            fileBtn.addEventListener("click",()=>editor.setValue(localStorage.getItem(k)));
-            filesDropdown.appendChild(fileBtn);
-            hasFiles=true;
-          }
-        }
-        if(!hasFiles){
-          let none=document.createElement("button");
-          none.textContent="No files present";
-          filesDropdown.appendChild(none);
-        }
-      });
-      filesDropdown.appendChild(viewBtn);
-    });
+  if(currentUser===MASTER_ACCOUNT){
+    showAllUsersPanel();
   }
 }
 
-/* Learn Python Functions */
-function openLearnPython(){
-  document.getElementById("main").style.display="none";
-  document.getElementById("learnPython").style.display="flex";
+function runCode(){
+  let code = editor.value;
+  output.innerText="Running...\n\n"+code;
+}
+
+function saveFile(){
+  if(currentUser==="guest") return alert("Guests cannot save");
+
+  let name = prompt("File name:");
+  if(!name) return;
+
+  localStorage.setItem("file_"+currentUser+"_"+name, editor.value);
+  alert("Saved!");
+}
+
+function showFiles(){
+  let keys = Object.keys(localStorage);
+  let files = keys.filter(k=>k.startsWith("file_"+currentUser+"_"));
+
+  if(files.length===0){
+    alert("No files found");
+    return;
+  }
+
+  let list = files.map(f=>f.replace("file_"+currentUser+"_","")).join("\n");
+  let choice = prompt("Your files:\n"+list+"\n\nType file name to open:");
+  if(!choice) return;
+
+  let content = localStorage.getItem("file_"+currentUser+"_"+choice);
+  if(content) editor.value = content;
+}
+
+function openLearn(){
+  editorContainer.style.display="none";
+  learnPage.style.display="block";
+
+  let saved = localStorage.getItem("learnContent");
+  if(saved) learnContent.innerHTML = saved;
+
+  if(currentUser!==MASTER_ACCOUNT){
+    learnContent.contentEditable="false";
+  }
 }
 
 function returnToEditor(){
-  document.getElementById("learnPython").style.display="none";
-  document.getElementById("main").style.display="flex";
+  learnPage.style.display="none";
+  editorContainer.style.display="flex";
 }
 
-document.getElementById("saveLearnBtn").addEventListener("click",()=>{
-  let content=document.getElementById("learnContent").innerHTML;
-  localStorage.setItem("learnPythonContent", content);
-  alert("Learn Python page saved!");
-});
-
-function formatText(command){
-  document.execCommand(command, false, null);
+function saveLearn(){
+  localStorage.setItem("learnContent", learnContent.innerHTML);
+  alert("Learn page saved!");
 }
 
-function addLink(){
+function format(command){
+  document.execCommand(command,false,null);
+}
+
+function highlightText(){
+  document.execCommand("hiliteColor", false, "yellow");
+}
+
+function insertBox(){
+  document.execCommand("insertHTML", false,
+    '<div contenteditable="true" style="border:2px solid #444; background:#f4f4f4; padding:12px; margin:10px 0; min-height:80px; font-family:monospace; white-space:pre-wrap;">Type here...</div><br>'
+  );
+}
+
+function insertLink(){
   let url = prompt("Enter URL:");
-  if(url) document.execCommand("createLink", false, url);
+  if(!url) return;
+  document.execCommand("createLink", false, url);
 }
 
-function addBox(){
-  let box = document.createElement("div");
-  box.style.border="1px solid #00f7ff";
-  box.style.padding="10px";
-  box.style.margin="10px 0";
-  box.style.background="#111";
-  box.style.color="#00ff88";
-  box.contentEditable="true";
-  box.innerHTML="Editable Box";
-  document.getElementById("learnContent").appendChild(box);
+function showAllUsersPanel(){
+  let users = Object.keys(localStorage)
+    .filter(k=>k.startsWith("user_"))
+    .map(k=>k.replace("user_",""));
+
+  if(users.length===0) return;
+
+  console.log("All Users:",users);
 }
-
-/* RUN */
-function runCode(){
-  runBtn.classList.add("loading");
-  outputContainer.innerHTML="";
-
-  function print(text){
-    let div=document.createElement("div");
-    div.className="output-line";
-    div.textContent=text;
-    outputContainer.appendChild(div);
-    outputContainer.scrollTop=outputContainer.scrollHeight;
-  }
-
-  function printError(text){
-    let div=document.createElement("div");
-    div.className="output-line error";
-    div.textContent=text;
-    outputContainer.appendChild(div);
-  }
-
-  Sk.configure({
-    output:print,
-    read:x=>{
-      if(!Sk.builtinFiles||!Sk.builtinFiles["files"][x])
-        throw "File not found: '"+x+"'";
-      return Sk.builtinFiles["files"][x];
-    },
-    inputfun:promptText=>{
-      print(promptText);
-      return new Promise(resolve=>{
-        let line=document.createElement("div");
-        line.className="input-line";
-
-        let prompt=document.createElement("span");
-        prompt.className="prompt";
-        prompt.textContent=">>>";
-
-        let input=document.createElement("input");
-        input.className="terminal-input blinking-cursor";
-
-        line.appendChild(prompt);
-        line.appendChild(input);
-        outputContainer.appendChild(line);
-        input.focus();
-
-        input.addEventListener("keydown",function(e){
-          if(e.key==="Enter"){
-            input.classList.remove("blinking-cursor");
-            input.disabled=true;
-            resolve(input.value);
-          }
-        });
-      });
-    },
-    inputfunTakesPrompt:true
-  });
-
-  Sk.misceval.asyncToPromise(()=>{
-    return Sk.importMainWithBody("<stdin>",false,editor.getValue(),true);
-  }).catch(err=>printError(err.toString()))
-  .finally(()=>runBtn.classList.remove("loading"));
-}
-
-function newFile(){editor.setValue("");}
-function copyCode(){navigator.clipboard.writeText(editor.getValue());alert("Copied!");}
-function saveFile(){
-  if(currentUser==="guest"){
-    alert("Guests cannot save files.");
-    return;
-  }
-
-  let fileName = prompt("Enter file name:");
-
-  if(!fileName || fileName.trim()===""){
-    alert("Invalid file name.");
-    return;
-  }
-
-  fileName = fileName.trim();
-
-  let key = "file_" + currentUser + "_" + fileName;
-
-  localStorage.setItem(key, editor.getValue());
-
-  alert("File saved successfully!");
-}
-
-window.onload=function(){
-  let s=localStorage.getItem("session");
-  if(s){
-    if(s===MASTER_ACCOUNT){
-      currentUser=s;
-      startIDE(true);
-    } else {
-      currentUser=s;
-      startIDE(false);
-    }
-  }
-};
 </script>
+
 </body>
 </html>
