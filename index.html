@@ -353,6 +353,73 @@ function startIDE(isMaster){
     document.getElementById("saveLearnBtn").style.display="inline-block";
   }
 
+  // MASTER ACCOUNT - VIEW OTHER USERS
+if(currentUser === MASTER_ACCOUNT){
+
+  let adminBtn = document.createElement("button");
+  adminBtn.textContent = "Other Users";
+  toolbar.appendChild(adminBtn);
+
+  let dropdown = document.createElement("div");
+  dropdown.className = "dropdown";
+  toolbar.appendChild(dropdown);
+
+  adminBtn.addEventListener("click", () => {
+    dropdown.classList.toggle("show");
+    dropdown.innerHTML = "";
+
+    for(let i=0;i<localStorage.length;i++){
+      let key = localStorage.key(i);
+
+      if(key.startsWith("user_") && key !== "user_" + MASTER_ACCOUNT){
+
+        let username = key.replace("user_","");
+
+        let userBtn = document.createElement("button");
+        userBtn.textContent = username;
+
+        userBtn.addEventListener("click", () => {
+
+          // Remove existing file list if open
+          if(userBtn.nextSibling && userBtn.nextSibling.classList.contains("dropdown")){
+            userBtn.nextSibling.remove();
+            return;
+          }
+
+          let filesDiv = document.createElement("div");
+          filesDiv.className = "dropdown";
+          filesDiv.style.background = "#222";
+
+          let hasFiles = false;
+
+          for(let j=0;j<localStorage.length;j++){
+            let k = localStorage.key(j);
+
+            if(k.startsWith("file_" + username + "_")){
+              let fileBtn = document.createElement("button");
+              fileBtn.textContent = k.replace("file_" + username + "_","");
+              fileBtn.addEventListener("click", () => {
+                editor.setValue(localStorage.getItem(k));
+              });
+              filesDiv.appendChild(fileBtn);
+              hasFiles = true;
+            }
+          }
+
+          if(!hasFiles){
+            let none = document.createElement("button");
+            none.textContent = "No files";
+            filesDiv.appendChild(none);
+          }
+
+          userBtn.parentNode.insertBefore(filesDiv, userBtn.nextSibling);
+        });
+
+        dropdown.appendChild(userBtn);
+      }
+    }
+  });
+}
   // Files button
   if(currentUser!=="guest"){
     let filesBtn=document.createElement("button");
