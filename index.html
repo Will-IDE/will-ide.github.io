@@ -195,6 +195,23 @@ input{
   margin-top:20px;
   font-size:18px;
 }
+
+#learnToolbar{
+  margin:10px 0;
+  display:flex;
+  gap:10px;
+}
+
+#learnContent{
+  width:80%;
+  min-height:200px;
+  background:#111;
+  border:1px solid #00f7ff;
+  padding:20px;
+  color:#00ff88;
+  margin:20px auto;
+  text-align:left;
+}
 </style>
 </head>
 <body>
@@ -234,7 +251,15 @@ input{
 
 <div id="learnPython">
   <h1>WELCOME - Follow the steps to start your coding journey</h1>
-  <div contenteditable="true" id="learnContent" style="width:80%; background:#111; padding:20px; margin:20px auto; border:1px solid #00f7ff; min-height:200px; color:#00ff88;"></div>
+  <div id="learnToolbar" style="display:none;">
+    <button onclick="formatText('bold')">Bold</button>
+    <button onclick="formatText('italic')">Italic</button>
+    <button onclick="formatText('underline')">Underline</button>
+    <button onclick="formatText('highlight')">Highlight</button>
+    <button onclick="addLink()">Add Link</button>
+    <button onclick="addBox()">Add Box</button>
+  </div>
+  <div contenteditable="true" id="learnContent"></div>
   <button onclick="returnToEditor()">Return to Code Editor</button>
   <button id="saveLearnBtn" style="display:none;">Save Learn Content</button>
 </div>
@@ -319,6 +344,15 @@ function startIDE(isMaster){
   learnBtn.style.display="inline-block";
   if(currentUser!=="guest") saveBtn.style.display="inline-block";
 
+  // Show saved Learn Python page content
+  let savedContent = localStorage.getItem("learnPythonContent");
+  if(savedContent) document.getElementById("learnContent").innerHTML = savedContent;
+
+  if(currentUser===MASTER_ACCOUNT){
+    document.getElementById("learnToolbar").style.display="flex";
+    document.getElementById("saveLearnBtn").style.display="inline-block";
+  }
+
   // Files button
   if(currentUser!=="guest"){
     let filesBtn=document.createElement("button");
@@ -369,72 +403,12 @@ function startIDE(isMaster){
       filesDropdown.appendChild(viewBtn);
     });
   }
-
-  // Master admin button
-  if(isMaster){
-    let adminBtn=document.createElement("button");
-    adminBtn.id="adminBtn";
-    adminBtn.textContent="Other Users";
-    toolbar.appendChild(adminBtn);
-
-    let dropdown=document.createElement("div");
-    dropdown.className="dropdown";
-    toolbar.appendChild(dropdown);
-
-    adminBtn.addEventListener("click",()=>{
-      dropdown.classList.toggle("show");
-      dropdown.innerHTML="";
-      for(let i=0;i<localStorage.length;i++){
-        let key=localStorage.key(i);
-        if(key.startsWith("user_") && key!=="user_"+MASTER_ACCOUNT){
-          let usernameBtn=document.createElement("button");
-          usernameBtn.textContent=key.replace("user_","");
-          usernameBtn.addEventListener("click",()=>{
-            if(usernameBtn.nextSibling && usernameBtn.nextSibling.classList.contains("dropdown")){
-              usernameBtn.nextSibling.remove();
-              return;
-            }
-            let filesDiv=document.createElement("div");
-            filesDiv.className="dropdown";
-            filesDiv.style.background="#222";
-            for(let j=0;j<localStorage.length;j++){
-              let k=localStorage.key(j);
-              if(k.startsWith("file_"+usernameBtn.textContent+"_")){
-                let fileBtn=document.createElement("button");
-                fileBtn.textContent=k.replace("file_"+usernameBtn.textContent+"_","");
-                fileBtn.addEventListener("click",()=>editor.setValue(localStorage.getItem(k)));
-                filesDiv.appendChild(fileBtn);
-              }
-            }
-            usernameBtn.parentNode.insertBefore(filesDiv, usernameBtn.nextSibling);
-          });
-          dropdown.appendChild(usernameBtn);
-        }
-      }
-    });
-  }
 }
 
-window.onload=function(){
-  let s=localStorage.getItem("session");
-  if(s){
-    if(s===MASTER_ACCOUNT){
-      currentUser=s;
-      startIDE(true);
-    } else {
-      currentUser=s;
-      startIDE(false);
-    }
-  }
-};
-
-/* LEARN PYTHON */
+/* Learn Python Functions */
 function openLearnPython(){
   document.getElementById("main").style.display="none";
   document.getElementById("learnPython").style.display="flex";
-  if(currentUser===MASTER_ACCOUNT){
-    document.getElementById("saveLearnBtn").style.display="inline-block";
-  }
 }
 
 function returnToEditor(){
@@ -447,6 +421,27 @@ document.getElementById("saveLearnBtn").addEventListener("click",()=>{
   localStorage.setItem("learnPythonContent", content);
   alert("Learn Python page saved!");
 });
+
+function formatText(command){
+  document.execCommand(command, false, null);
+}
+
+function addLink(){
+  let url = prompt("Enter URL:");
+  if(url) document.execCommand("createLink", false, url);
+}
+
+function addBox(){
+  let box = document.createElement("div");
+  box.style.border="1px solid #00f7ff";
+  box.style.padding="10px";
+  box.style.margin="10px 0";
+  box.style.background="#111";
+  box.style.color="#00ff88";
+  box.contentEditable="true";
+  box.innerHTML="Editable Box";
+  document.getElementById("learnContent").appendChild(box);
+}
 
 /* RUN */
 function runCode(){
@@ -534,6 +529,19 @@ function saveFile(){
 
   alert("File saved successfully!");
 }
+
+window.onload=function(){
+  let s=localStorage.getItem("session");
+  if(s){
+    if(s===MASTER_ACCOUNT){
+      currentUser=s;
+      startIDE(true);
+    } else {
+      currentUser=s;
+      startIDE(false);
+    }
+  }
+};
 </script>
 </body>
 </html>
