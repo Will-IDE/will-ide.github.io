@@ -43,6 +43,11 @@ input{width:90%;padding:8px;margin:8px 0;background:#111;border:1px solid #333;c
 .learn-header{text-align:center;color:#00f7ff;font-size:28px;margin-bottom:20px;text-shadow:0 0 10px #00f7ff;}
 .learn-content{margin:10px;font-size:16px;line-height:1.5;}
 .learn-btn{margin-top:20px;padding:10px 18px;font-size:16px;}
+.learn-toolbar{margin-bottom:10px;}
+.learn-toolbar button{margin-right:5px;padding:4px 8px;font-size:14px;}
+#learnEditor{background:#111;color:#00ff88;padding:10px;border:1px solid #00f7ff;min-height:150px;}
+.keyword{background:#ff0;color:#000;padding:2px 5px;border-radius:3px;font-weight:bold;}
+.highlight{background:#00f7ff33;padding:2px 5px;border-radius:3px;}
 </style>
 </head>
 <body>
@@ -128,7 +133,7 @@ async function login(){
   let user=username.value.trim();
   let pass=password.value.trim();
   if(user===MASTER_ACCOUNT && pass===MASTER_PASSWORD){currentUser=user;localStorage.setItem("session",user);startIDE(true);return;}
-  let stored=localStorage.getItem("user_"+user);
+  let stored=localStorage.getItem("user_"+user");
   if(!stored){authMessage.innerText="No account.";return;}
   if(stored!==await hash(pass)){authMessage.innerText="Wrong password.";return;}
   currentUser=user;localStorage.setItem("session",user);startIDE(false);
@@ -214,21 +219,36 @@ function startIDE(isMaster){
 }
 
 /* LEARN PYTHON PAGE */
-let learnPythonContent=localStorage.getItem("learnPythonContent") || "WELCOME - Follow the steps to start your coding journey!";
+let learnPythonContent=localStorage.getItem("learnPythonContent") || "<b>WELCOME</b> - Follow the steps to start your coding journey!";
 function openLearnPython(isMaster){
   outputContainer.innerHTML="";
-  let header=document.createElement("div"); header.className="learn-header"; header.textContent="LEARN PYTHON";
-  let content=document.createElement("div"); content.className="learn-content"; content.textContent=learnPythonContent;
+  let header=document.createElement("div"); header.className="learn-header"; header.innerHTML="LEARN PYTHON";
+  let content=document.createElement("div"); content.className="learn-content"; content.innerHTML=learnPythonContent;
   outputContainer.appendChild(header); outputContainer.appendChild(content);
 
-  // Edit button only for master
+  // Master editor toolbar
   if(isMaster){
-    let editBtn=document.createElement("button"); editBtn.textContent="Edit Content"; editBtn.className="learn-btn";
-    editBtn.addEventListener("click",()=>{
-      let newContent=prompt("Edit Learn Python content:", learnPythonContent);
-      if(newContent){learnPythonContent=newContent; localStorage.setItem("learnPythonContent",learnPythonContent); content.textContent=learnPythonContent;}
-    });
-    outputContainer.appendChild(editBtn);
+    let toolbarDiv=document.createElement("div"); toolbarDiv.className="learn-toolbar";
+    let boldBtn=document.createElement("button"); boldBtn.textContent="Bold"; boldBtn.onclick=()=>document.execCommand('bold'); toolbarDiv.appendChild(boldBtn);
+    let italicBtn=document.createElement("button"); italicBtn.textContent="Italic"; italicBtn.onclick=()=>document.execCommand('italic'); toolbarDiv.appendChild(italicBtn);
+    let highlightBtn=document.createElement("button"); highlightBtn.textContent="Highlight"; highlightBtn.onclick=()=>document.execCommand('backColor', false, '#00f7ff33'); toolbarDiv.appendChild(highlightBtn);
+    let keywordBtn=document.createElement("button"); keywordBtn.textContent="Keyword Box"; keywordBtn.onclick=()=>document.execCommand('insertHTML', false, '<span class="keyword">keyword</span>'); toolbarDiv.appendChild(keywordBtn);
+    let linkBtn=document.createElement("button"); linkBtn.textContent="Link"; linkBtn.onclick=()=>{
+      let url=prompt("Enter URL:"); if(url){document.execCommand('createLink', false, url);}
+    }; toolbarDiv.appendChild(linkBtn);
+
+    outputContainer.insertBefore(toolbarDiv, content);
+
+    content.setAttribute("contenteditable","true");
+    content.focus();
+
+    let saveBtn=document.createElement("button"); saveBtn.textContent="Save Changes"; saveBtn.className="learn-btn";
+    saveBtn.onclick=()=>{
+      learnPythonContent=content.innerHTML;
+      localStorage.setItem("learnPythonContent", learnPythonContent);
+      alert("Content saved!");
+    };
+    outputContainer.appendChild(saveBtn);
   }
 
   let returnBtn=document.createElement("button"); returnBtn.textContent="Return to Editor"; returnBtn.className="learn-btn";
