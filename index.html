@@ -15,44 +15,190 @@
 
 <style>
 body{margin:0;background:#0b0f14;color:white;font-family:Segoe UI;}
-#topbar{background:#111;padding:15px;font-size:22px;text-align:center;border-bottom:2px solid #00f7ff;text-shadow:0 0 8px #00f7ff;}
-#toolbar{display:flex;justify-content:center;gap:15px;padding:10px;background:#111;border-bottom:1px solid #222;position:relative;}
-button{padding:8px 18px;background:#1a1a1a;color:white;border:1px solid #333;border-radius:8px;cursor:pointer;transition:0.2s;}
-button:hover{border-color:#00f7ff;color:#00f7ff;box-shadow:0 0 8px #00f7ff;}
-.dropdown{position:absolute;top:100%;left:0;background:#111;border:1px solid #333;display:none;flex-direction:column;min-width:180px;z-index:200;}
+
+#topbar{
+  background:#111;
+  padding:15px;
+  font-size:22px;
+  text-align:center;
+  border-bottom:2px solid #00f7ff;
+  text-shadow:0 0 8px #00f7ff;
+}
+
+#toolbar{
+  display:flex;
+  justify-content:center;
+  gap:15px;
+  padding:10px;
+  background:#111;
+  border-bottom:1px solid #222;
+  position:relative;
+}
+
+button{
+  padding:8px 18px;
+  background:#1a1a1a;
+  color:white;
+  border:1px solid #333;
+  border-radius:8px;
+  cursor:pointer;
+  transition:0.2s;
+}
+button:hover{
+  border-color:#00f7ff;
+  color:#00f7ff;
+  box-shadow:0 0 8px #00f7ff;
+}
+
+.dropdown{
+  position:absolute;
+  top:100%;
+  left:0;
+  background:#111;
+  border:1px solid #333;
+  display:none;
+  flex-direction:column;
+  min-width:180px;
+  z-index:200;
+}
 .dropdown.show{display:flex;}
-.dropdown button{background:#111;border:none;border-bottom:1px solid #222;text-align:left;padding:8px 12px;border-radius:0;}
+.dropdown button{
+  background:#111;
+  border:none;
+  border-bottom:1px solid #222;
+  text-align:left;
+  padding:8px 12px;
+  border-radius:0;
+}
 .dropdown button:hover{background:#1a1a1a;color:#00f7ff;}
-#main{display:flex;height:85vh;}
-#editorContainer{width:50%;height:100%;}
-#divider{width:5px;cursor:col-resize;background:#00f7ff;}
-#outputContainer{width:50%;background:#000;padding:15px;overflow-y:auto;font-family:monospace;color:#00ff88;box-shadow:inset 0 0 20px #00ff8855;}
+
+#main{
+  display:flex;
+  height:85vh;
+}
+
+#editorContainer{
+  width:50%;
+  height:100%;
+}
+
+#divider{
+  width:5px;
+  cursor:col-resize;
+  background:#00f7ff;
+}
+
+#outputContainer{
+  width:50%;
+  background:#000;
+  padding:15px;
+  overflow-y:auto;
+  font-family:monospace;
+  color:#00ff88;
+  box-shadow:inset 0 0 20px #00ff8855;
+}
+
 .output-line{margin-bottom:4px;}
 .error{color:#ff4c4c;}
-.input-line{display:flex;align-items:center;margin-top:4px;}
-.prompt{margin-right:6px;color:#00f7ff;}
-.terminal-input{background:black;border:none;outline:none;color:#00ff88;font-family:monospace;flex:1;}
-.blinking-cursor::after{content:"|";animation:blink 1s infinite;}
-@keyframes blink{0%{opacity:1;}50%{opacity:0;}100%{opacity:1;}}
-.loading{animation:spin 1s linear infinite;}
-@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
-#authScreen{position:fixed;inset:0;background:#111;display:flex;justify-content:center;align-items:center;z-index:100;}
-#authBox{background:#000;padding:30px;border-radius:20px;text-align:center;width:320px;box-shadow:0 0 20px #00f7ff55;}
-#authBox p{font-size:14px;color:#aaa;}
-input{width:90%;padding:8px;margin:8px 0;background:#111;border:1px solid #333;color:white;}
-.learn-header{text-align:center;color:#00f7ff;font-size:28px;margin-bottom:20px;text-shadow:0 0 10px #00f7ff;}
-.learn-content{margin:10px;font-size:16px;line-height:1.5;}
-.learn-btn{margin-top:20px;padding:10px 18px;font-size:16px;}
-.learn-toolbar{margin-bottom:10px;}
-.learn-toolbar button{margin-right:5px;padding:4px 8px;font-size:14px;}
-#learnEditor{background:#111;color:#00ff88;padding:10px;border:1px solid #00f7ff;min-height:150px;}
-.keyword{background:#ff0;color:#000;padding:2px 5px;border-radius:3px;font-weight:bold;}
-.highlight{background:#00f7ff33;padding:2px 5px;border-radius:3px;}
+
+.input-line{
+  display:flex;
+  align-items:center;
+  margin-top:4px;
+}
+
+.prompt{
+  margin-right:6px;
+  color:#00f7ff;
+}
+
+.terminal-input{
+  background:black;
+  border:none;
+  outline:none;
+  color:#00ff88;
+  font-family:monospace;
+  flex:1;
+}
+
+.blinking-cursor::after{
+  content:"|";
+  animation:blink 1s infinite;
+}
+
+@keyframes blink{
+  0%{opacity:1;}
+  50%{opacity:0;}
+  100%{opacity:1;}
+}
+
+.loading{
+  animation:spin 1s linear infinite;
+}
+@keyframes spin{
+  from{transform:rotate(0deg);}
+  to{transform:rotate(360deg);}
+}
+
+#authScreen{
+  position:fixed;
+  inset:0;
+  background:#111;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:100;
+}
+
+#authBox{
+  background:#000;
+  padding:30px;
+  border-radius:20px;
+  text-align:center;
+  width:320px;
+  box-shadow:0 0 20px #00f7ff55;
+}
+
+#authBox p{
+  font-size:14px;
+  color:#aaa;
+}
+
+input{
+  width:90%;
+  padding:8px;
+  margin:8px 0;
+  background:#111;
+  border:1px solid #333;
+  color:white;
+}
+
+#learnPython{
+  display:none;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  padding:50px;
+  height:100%;
+  color:#00ff88;
+  font-family:Segoe UI, monospace;
+}
+
+#learnPython h1{
+  font-size:40px;
+  color:#00f7ff;
+  text-shadow:0 0 10px #00f7ff;
+}
+
+#learnPython button{
+  margin-top:20px;
+  font-size:18px;
+}
 </style>
 </head>
 <body>
 
-<!-- AUTH -->
 <div id="authScreen">
   <div id="authBox">
     <h2>Login / Sign Up</h2>
@@ -67,19 +213,17 @@ input{width:90%;padding:8px;margin:8px 0;background:#111;border:1px solid #333;c
   </div>
 </div>
 
-<!-- TOPBAR -->
 <div id="topbar">WIDE - Python IDE</div>
 
-<!-- TOOLBAR -->
 <div id="toolbar">
   <button id="runBtn" onclick="runCode()">Run</button>
   <button onclick="newFile()">New</button>
   <button onclick="copyCode()">Copy</button>
   <button id="saveBtn" onclick="saveFile()" style="display:none;">Save</button>
+  <button id="learnBtn" onclick="openLearnPython()" style="display:none;">LEARN PYTHON</button>
   <button onclick="logout()">Logout</button>
 </div>
 
-<!-- MAIN -->
 <div id="main">
   <div id="editorContainer">
     <textarea id="code">print("Welcome to WIDE!")</textarea>
@@ -88,11 +232,24 @@ input{width:90%;padding:8px;margin:8px 0;background:#111;border:1px solid #333;c
   <div id="outputContainer"></div>
 </div>
 
+<div id="learnPython">
+  <h1>WELCOME - Follow the steps to start your coding journey</h1>
+  <div contenteditable="true" id="learnContent" style="width:80%; background:#111; padding:20px; margin:20px auto; border:1px solid #00f7ff; min-height:200px; color:#00ff88;"></div>
+  <button onclick="returnToEditor()">Return to Code Editor</button>
+  <button id="saveLearnBtn" style="display:none;">Save Learn Content</button>
+</div>
+
 <script>
-let editor=CodeMirror.fromTextArea(document.getElementById("code"),{mode:"python",theme:"dracula",lineNumbers:true});
+let editor=CodeMirror.fromTextArea(document.getElementById("code"),{
+  mode:"python",
+  theme:"dracula",
+  lineNumbers:true
+});
+
 let outputContainer=document.getElementById("outputContainer");
 let runBtn=document.getElementById("runBtn");
 let saveBtn=document.getElementById("saveBtn");
+let learnBtn=document.getElementById("learnBtn");
 let toolbar=document.getElementById("toolbar");
 let currentUser=null;
 
@@ -117,33 +274,49 @@ async function hash(text){
   const encoder=new TextEncoder();
   const data=encoder.encode(text);
   const hashBuffer=await crypto.subtle.digest("SHA-256",data);
-  return Array.from(new Uint8Array(hashBuffer)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  return Array.from(new Uint8Array(hashBuffer))
+    .map(b=>b.toString(16).padStart(2,'0')).join('');
 }
 
-/* AUTH */
+/* AUTH FUNCTIONS */
 async function signup(){
-  let user=username.value.trim();
-  let pass=password.value.trim();
-  if(!user||!pass)return;
-  if(localStorage.getItem("user_"+user)){authMessage.innerText="User exists.";return;}
-  localStorage.setItem("user_"+user,await hash(pass));
+  let user = username.value.trim();
+  let pass = password.value.trim();
+  if(!user || !pass) return;
+  if(localStorage.getItem("user_"+user)){
+    authMessage.innerText="User exists.";
+    return;
+  }
+  localStorage.setItem("user_"+user, await hash(pass));
   authMessage.innerText="Signup successful!";
 }
-async function login(){
-  let user=username.value.trim();
-  let pass=password.value.trim();
-  if(user===MASTER_ACCOUNT && pass===MASTER_PASSWORD){currentUser=user;localStorage.setItem("session",user);startIDE(true);return;}
-  let stored=localStorage.getItem("user_"+user");
-  if(!stored){authMessage.innerText="No account.";return;}
-  if(stored!==await hash(pass)){authMessage.innerText="Wrong password.";return;}
-  currentUser=user;localStorage.setItem("session",user);startIDE(false);
-}
-function guest(){currentUser="guest";startIDE(false);}
-function logout(){localStorage.removeItem("session");location.reload();}
 
-/* START IDE */
+async function login(){
+  let user = username.value.trim();
+  let pass = password.value.trim();
+
+  if(user === MASTER_ACCOUNT && pass === MASTER_PASSWORD){
+    currentUser = user;
+    localStorage.setItem("session", user);
+    startIDE(true);
+    return;
+  }
+
+  let stored = localStorage.getItem("user_" + user);
+  if(!stored){ authMessage.innerText="No account."; return; }
+  if(stored !== await hash(pass)){ authMessage.innerText="Wrong password."; return; }
+
+  currentUser = user;
+  localStorage.setItem("session", user);
+  startIDE(false);
+}
+
+function guest(){ currentUser="guest"; startIDE(false); }
+function logout(){ localStorage.removeItem("session"); location.reload(); }
+
 function startIDE(isMaster){
   authScreen.style.display="none";
+  learnBtn.style.display="inline-block";
   if(currentUser!=="guest") saveBtn.style.display="inline-block";
 
   // Files button
@@ -151,33 +324,47 @@ function startIDE(isMaster){
     let filesBtn=document.createElement("button");
     filesBtn.textContent="Files";
     toolbar.insertBefore(filesBtn, saveBtn);
-    let filesDropdown=document.createElement("div"); filesDropdown.className="dropdown"; toolbar.appendChild(filesDropdown);
+
+    let filesDropdown=document.createElement("div");
+    filesDropdown.className="dropdown";
+    toolbar.appendChild(filesDropdown);
 
     filesBtn.addEventListener("click",()=>{
-      filesDropdown.classList.toggle("show"); filesDropdown.innerHTML="";
-      let addBtn=document.createElement("button"); addBtn.textContent="Add Code";
+      filesDropdown.classList.toggle("show");
+      filesDropdown.innerHTML="";
+
+      let addBtn=document.createElement("button");
+      addBtn.textContent="Add Code";
       addBtn.addEventListener("click",()=>{
-        let fileName=prompt("Enter file name:"); if(!fileName || fileName.trim()===""){alert("Invalid file name."); return;}
-        localStorage.setItem("file_"+currentUser+"_"+fileName.trim(), editor.getValue());
-        alert("File saved!");
+        editor.setValue("");
+        let fileName=prompt("Enter file name:");
+        if(fileName){
+          localStorage.setItem("file_"+currentUser+"_"+fileName, editor.getValue());
+          alert("File created. You can now edit and save it.");
+        }
       });
       filesDropdown.appendChild(addBtn);
 
-      let viewBtn=document.createElement("button"); viewBtn.textContent="View Files";
+      let viewBtn=document.createElement("button");
+      viewBtn.textContent="View Files";
       viewBtn.addEventListener("click",()=>{
         filesDropdown.innerHTML="";
         let hasFiles=false;
         for(let i=0;i<localStorage.length;i++){
           let k=localStorage.key(i);
           if(k.startsWith("file_"+currentUser+"_")){
-            hasFiles=true;
             let fileBtn=document.createElement("button");
             fileBtn.textContent=k.replace("file_"+currentUser+"_","");
             fileBtn.addEventListener("click",()=>editor.setValue(localStorage.getItem(k)));
             filesDropdown.appendChild(fileBtn);
+            hasFiles=true;
           }
         }
-        if(!hasFiles){let noFile=document.createElement("button"); noFile.textContent="No files present"; noFile.disabled=true; filesDropdown.appendChild(noFile);}
+        if(!hasFiles){
+          let none=document.createElement("button");
+          none.textContent="No files present";
+          filesDropdown.appendChild(none);
+        }
       });
       filesDropdown.appendChild(viewBtn);
     });
@@ -185,22 +372,36 @@ function startIDE(isMaster){
 
   // Master admin button
   if(isMaster){
-    let adminBtn=document.createElement("button"); adminBtn.id="adminBtn"; adminBtn.textContent="Other Users"; toolbar.appendChild(adminBtn);
-    let dropdown=document.createElement("div"); dropdown.className="dropdown"; toolbar.appendChild(dropdown);
+    let adminBtn=document.createElement("button");
+    adminBtn.id="adminBtn";
+    adminBtn.textContent="Other Users";
+    toolbar.appendChild(adminBtn);
+
+    let dropdown=document.createElement("div");
+    dropdown.className="dropdown";
+    toolbar.appendChild(dropdown);
 
     adminBtn.addEventListener("click",()=>{
-      dropdown.classList.toggle("show"); dropdown.innerHTML="";
+      dropdown.classList.toggle("show");
+      dropdown.innerHTML="";
       for(let i=0;i<localStorage.length;i++){
         let key=localStorage.key(i);
         if(key.startsWith("user_") && key!=="user_"+MASTER_ACCOUNT){
-          let usernameBtn=document.createElement("button"); usernameBtn.textContent=key.replace("user_","");
+          let usernameBtn=document.createElement("button");
+          usernameBtn.textContent=key.replace("user_","");
           usernameBtn.addEventListener("click",()=>{
-            if(usernameBtn.nextSibling && usernameBtn.nextSibling.classList.contains("dropdown")){usernameBtn.nextSibling.remove(); return;}
-            let filesDiv=document.createElement("div"); filesDiv.className="dropdown"; filesDiv.style.background="#222";
+            if(usernameBtn.nextSibling && usernameBtn.nextSibling.classList.contains("dropdown")){
+              usernameBtn.nextSibling.remove();
+              return;
+            }
+            let filesDiv=document.createElement("div");
+            filesDiv.className="dropdown";
+            filesDiv.style.background="#222";
             for(let j=0;j<localStorage.length;j++){
               let k=localStorage.key(j);
               if(k.startsWith("file_"+usernameBtn.textContent+"_")){
-                let fileBtn=document.createElement("button"); fileBtn.textContent=k.replace("file_"+usernameBtn.textContent+"_","");
+                let fileBtn=document.createElement("button");
+                fileBtn.textContent=k.replace("file_"+usernameBtn.textContent+"_","");
                 fileBtn.addEventListener("click",()=>editor.setValue(localStorage.getItem(k)));
                 filesDiv.appendChild(fileBtn);
               }
@@ -212,80 +413,127 @@ function startIDE(isMaster){
       }
     });
   }
-
-  // LEARN PYTHON BUTTON
-  let learnBtn=document.createElement("button"); learnBtn.textContent="LEARN PYTHON"; learnBtn.style.fontSize="16px"; toolbar.insertBefore(learnBtn, saveBtn);
-  learnBtn.addEventListener("click",()=>openLearnPython(isMaster));
 }
 
-/* LEARN PYTHON PAGE */
-let learnPythonContent=localStorage.getItem("learnPythonContent") || "<b>WELCOME</b> - Follow the steps to start your coding journey!";
-function openLearnPython(isMaster){
-  outputContainer.innerHTML="";
-  let header=document.createElement("div"); header.className="learn-header"; header.innerHTML="LEARN PYTHON";
-  let content=document.createElement("div"); content.className="learn-content"; content.innerHTML=learnPythonContent;
-  outputContainer.appendChild(header); outputContainer.appendChild(content);
-
-  // Master editor toolbar
-  if(isMaster){
-    let toolbarDiv=document.createElement("div"); toolbarDiv.className="learn-toolbar";
-    let boldBtn=document.createElement("button"); boldBtn.textContent="Bold"; boldBtn.onclick=()=>document.execCommand('bold'); toolbarDiv.appendChild(boldBtn);
-    let italicBtn=document.createElement("button"); italicBtn.textContent="Italic"; italicBtn.onclick=()=>document.execCommand('italic'); toolbarDiv.appendChild(italicBtn);
-    let highlightBtn=document.createElement("button"); highlightBtn.textContent="Highlight"; highlightBtn.onclick=()=>document.execCommand('backColor', false, '#00f7ff33'); toolbarDiv.appendChild(highlightBtn);
-    let keywordBtn=document.createElement("button"); keywordBtn.textContent="Keyword Box"; keywordBtn.onclick=()=>document.execCommand('insertHTML', false, '<span class="keyword">keyword</span>'); toolbarDiv.appendChild(keywordBtn);
-    let linkBtn=document.createElement("button"); linkBtn.textContent="Link"; linkBtn.onclick=()=>{
-      let url=prompt("Enter URL:"); if(url){document.execCommand('createLink', false, url);}
-    }; toolbarDiv.appendChild(linkBtn);
-
-    outputContainer.insertBefore(toolbarDiv, content);
-
-    content.setAttribute("contenteditable","true");
-    content.focus();
-
-    let saveBtn=document.createElement("button"); saveBtn.textContent="Save Changes"; saveBtn.className="learn-btn";
-    saveBtn.onclick=()=>{
-      learnPythonContent=content.innerHTML;
-      localStorage.setItem("learnPythonContent", learnPythonContent);
-      alert("Content saved!");
-    };
-    outputContainer.appendChild(saveBtn);
-  }
-
-  let returnBtn=document.createElement("button"); returnBtn.textContent="Return to Editor"; returnBtn.className="learn-btn";
-  returnBtn.addEventListener("click",()=>outputContainer.innerHTML="");
-  outputContainer.appendChild(returnBtn);
-}
-
-/* SESSION */
 window.onload=function(){
   let s=localStorage.getItem("session");
   if(s){
-    if(s===MASTER_ACCOUNT){currentUser=s; startIDE(true);}
-    else{currentUser=s; startIDE(false);}
+    if(s===MASTER_ACCOUNT){
+      currentUser=s;
+      startIDE(true);
+    } else {
+      currentUser=s;
+      startIDE(false);
+    }
   }
 };
 
+/* LEARN PYTHON */
+function openLearnPython(){
+  document.getElementById("main").style.display="none";
+  document.getElementById("learnPython").style.display="flex";
+  if(currentUser===MASTER_ACCOUNT){
+    document.getElementById("saveLearnBtn").style.display="inline-block";
+  }
+}
+
+function returnToEditor(){
+  document.getElementById("learnPython").style.display="none";
+  document.getElementById("main").style.display="flex";
+}
+
+document.getElementById("saveLearnBtn").addEventListener("click",()=>{
+  let content=document.getElementById("learnContent").innerHTML;
+  localStorage.setItem("learnPythonContent", content);
+  alert("Learn Python page saved!");
+});
+
 /* RUN */
 function runCode(){
-  runBtn.classList.add("loading"); outputContainer.innerHTML="";
-  function print(text){let div=document.createElement("div"); div.className="output-line"; div.textContent=text; outputContainer.appendChild(div); outputContainer.scrollTop=outputContainer.scrollHeight;}
-  function printError(text){let div=document.createElement("div"); div.className="output-line error"; div.textContent=text; outputContainer.appendChild(div);}
+  runBtn.classList.add("loading");
+  outputContainer.innerHTML="";
+
+  function print(text){
+    let div=document.createElement("div");
+    div.className="output-line";
+    div.textContent=text;
+    outputContainer.appendChild(div);
+    outputContainer.scrollTop=outputContainer.scrollHeight;
+  }
+
+  function printError(text){
+    let div=document.createElement("div");
+    div.className="output-line error";
+    div.textContent=text;
+    outputContainer.appendChild(div);
+  }
+
   Sk.configure({
     output:print,
-    read:x=>{if(!Sk.builtinFiles||!Sk.builtinFiles["files"][x]) throw "File not found: '"+x+"'"; return Sk.builtinFiles["files"][x];},
-    inputfun:promptText=>{print(promptText); return new Promise(resolve=>{let line=document.createElement("div"); line.className="input-line"; let prompt=document.createElement("span"); prompt.className="prompt"; prompt.textContent=">>>"; let input=document.createElement("input"); input.className="terminal-input blinking-cursor"; line.appendChild(prompt); line.appendChild(input); outputContainer.appendChild(line); input.focus(); input.addEventListener("keydown",function(e){if(e.key==="Enter"){input.classList.remove("blinking-cursor"); input.disabled=true; resolve(input.value);}});});},
+    read:x=>{
+      if(!Sk.builtinFiles||!Sk.builtinFiles["files"][x])
+        throw "File not found: '"+x+"'";
+      return Sk.builtinFiles["files"][x];
+    },
+    inputfun:promptText=>{
+      print(promptText);
+      return new Promise(resolve=>{
+        let line=document.createElement("div");
+        line.className="input-line";
+
+        let prompt=document.createElement("span");
+        prompt.className="prompt";
+        prompt.textContent=">>>";
+
+        let input=document.createElement("input");
+        input.className="terminal-input blinking-cursor";
+
+        line.appendChild(prompt);
+        line.appendChild(input);
+        outputContainer.appendChild(line);
+        input.focus();
+
+        input.addEventListener("keydown",function(e){
+          if(e.key==="Enter"){
+            input.classList.remove("blinking-cursor");
+            input.disabled=true;
+            resolve(input.value);
+          }
+        });
+      });
+    },
     inputfunTakesPrompt:true
   });
-  Sk.misceval.asyncToPromise(()=>Sk.importMainWithBody("<stdin>",false,editor.getValue(),true))
-  .catch(err=>{let div=document.createElement("div"); div.className="output-line error"; div.textContent=err; outputContainer.appendChild(div);})
+
+  Sk.misceval.asyncToPromise(()=>{
+    return Sk.importMainWithBody("<stdin>",false,editor.getValue(),true);
+  }).catch(err=>printError(err.toString()))
   .finally(()=>runBtn.classList.remove("loading"));
 }
 
-/* OTHER FUNCTIONS */
 function newFile(){editor.setValue("");}
-function copyCode(){navigator.clipboard.writeText(editor.getValue()); alert("Copied!");}
-function saveFile(){if(currentUser==="guest"){alert("Guests cannot save files.");return;} let fileName=prompt("Enter file name:"); if(!fileName||fileName.trim()===""){alert("Invalid file name."); return;} fileName=fileName.trim(); localStorage.setItem("file_"+currentUser+"_"+fileName, editor.getValue()); alert("File saved successfully!");}
-</script>
+function copyCode(){navigator.clipboard.writeText(editor.getValue());alert("Copied!");}
+function saveFile(){
+  if(currentUser==="guest"){
+    alert("Guests cannot save files.");
+    return;
+  }
 
+  let fileName = prompt("Enter file name:");
+
+  if(!fileName || fileName.trim()===""){
+    alert("Invalid file name.");
+    return;
+  }
+
+  fileName = fileName.trim();
+
+  let key = "file_" + currentUser + "_" + fileName;
+
+  localStorage.setItem(key, editor.getValue());
+
+  alert("File saved successfully!");
+}
+</script>
 </body>
 </html>
