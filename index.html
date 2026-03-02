@@ -352,7 +352,79 @@ function startIDE(isMaster){
     document.getElementById("learnToolbar").style.display="flex";
     document.getElementById("saveLearnBtn").style.display="inline-block";
   }
+   /* MASTER - OTHER ACCOUNTS BUTTON */
+  if(currentUser === MASTER_ACCOUNT){
 
+    let otherBtn = document.createElement("button");
+    otherBtn.textContent = "Other Accounts";
+    toolbar.appendChild(otherBtn);
+
+    let otherDropdown = document.createElement("div");
+    otherDropdown.className = "dropdown";
+    toolbar.appendChild(otherDropdown);
+
+    otherBtn.addEventListener("click", () => {
+      otherDropdown.classList.toggle("show");
+      otherDropdown.innerHTML = "";
+
+      let users = [];
+
+      // Collect all users from localStorage
+      for(let i=0; i<localStorage.length; i++){
+        let key = localStorage.key(i);
+        if(key.startsWith("user_")){
+          let username = key.replace("user_","");
+          if(username !== MASTER_ACCOUNT){
+            users.push(username);
+          }
+        }
+      }
+
+      if(users.length === 0){
+        let none = document.createElement("button");
+        none.textContent = "No other accounts";
+        otherDropdown.appendChild(none);
+        return;
+      }
+
+      users.forEach(user => {
+        let userBtn = document.createElement("button");
+        userBtn.textContent = user;
+
+        userBtn.addEventListener("click", () => {
+          otherDropdown.innerHTML = "";
+
+          let hasFiles = false;
+
+          for(let i=0; i<localStorage.length; i++){
+            let key = localStorage.key(i);
+            if(key.startsWith("file_" + user + "_")){
+              let fileBtn = document.createElement("button");
+              fileBtn.textContent = key.replace("file_" + user + "_","");
+
+              fileBtn.addEventListener("click", () => {
+                editor.setValue(localStorage.getItem(key));
+              });
+
+              otherDropdown.appendChild(fileBtn);
+              hasFiles = true;
+            }
+          }
+
+          if(!hasFiles){
+            let none = document.createElement("button");
+            none.textContent = "No files";
+            otherDropdown.appendChild(none);
+          }
+        });
+
+        otherDropdown.appendChild(userBtn);
+      });
+
+    });
+  }
+
+  
   // Files button
   if(currentUser!=="guest"){
     let filesBtn=document.createElement("button");
